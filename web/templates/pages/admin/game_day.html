@@ -3,7 +3,7 @@
 <div class="flex flex-wrap items-end justify-between gap-3 pb-5">
   <div><a href="/admin/sessions/{{$s.ID}}" class="mb-1 inline-flex items-center gap-1 text-sm text-muted">{{icon "chevron-left" "size-4"}} Detail sesi</a>
   <h1 class="text-2xl font-bold">Hari H · {{$s.Title}}</h1><p class="text-sm text-muted">{{.Data.Present}} hadir dari {{len $p.Registered}} peserta</p></div>
-  <a href="/sessions/{{$s.Slug}}/rotation" target="_blank" rel="noopener" class="btn btn-secondary">{{icon "monitor"}} Papan rotasi</a>
+  <a href="/sessions/{{$s.Slug}}/rotation" target="_blank" rel="noopener" class="btn btn-secondary">{{icon "rotate-cw"}} Papan rotasi</a>
 </div>
 
 <section class="card p-4">
@@ -29,19 +29,24 @@
 
 {{define "attendance-row"}}
 {{$r := .R}}
-<li class="attendance flex flex-wrap items-center gap-3 py-2" id="att-{{$r.ID}}">
-  <div class="min-w-0 flex-1"><p class="truncate font-medium">{{$r.DisplayName}}</p><p class="text-xs text-muted">{{level $r.Level}} · {{payStatus $r.PaymentStatus}}</p></div>
-  <form method="post" action="/admin/registrations/{{$r.ID}}/level" hx-post="/admin/registrations/{{$r.ID}}/level" hx-trigger="change" hx-swap="none" data-no-confirm>
-    {{template "csrf" .CSRF}}
-    <select name="level" class="input input-sm" aria-label="Koreksi level {{$r.DisplayName}}">
-      <option value="beginner" {{if eq $r.Level "beginner"}}selected{{end}}>Pemula</option>
-      <option value="intermediate" {{if eq $r.Level "intermediate"}}selected{{end}}>Menengah</option>
-      <option value="advanced" {{if eq $r.Level "advanced"}}selected{{end}}>Mahir</option>
-    </select>
-  </form>
-  <div class="seg grid grid-cols-2" role="group" aria-label="Kehadiran {{$r.DisplayName}}">
-    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="attended"><button class="seg-btn {{if eq $r.Status "attended"}}is-ok{{end}}" aria-pressed="{{eq $r.Status "attended"}}">{{icon "check"}} Hadir</button></form>
-    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="no_show"><button class="seg-btn {{if eq $r.Status "no_show"}}is-bad{{end}}" aria-pressed="{{eq $r.Status "no_show"}}">{{icon "x"}} Tidak</button></form>
+<li class="attendance grid gap-2 py-3 md:grid-cols-[1fr_15rem] md:items-center md:gap-4" id="att-{{$r.ID}}">
+  <div class="flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <p class="truncate font-medium">{{$r.DisplayName}}</p>
+      <p class="text-xs text-muted">{{payStatus $r.PaymentStatus}}</p>
+    </div>
+    <form method="post" action="/admin/registrations/{{$r.ID}}/level" hx-post="/admin/registrations/{{$r.ID}}/level" hx-trigger="change" hx-swap="none" data-no-confirm class="shrink-0">
+      {{template "csrf" .CSRF}}
+      <select name="level" class="input input-sm w-32" aria-label="Level {{$r.DisplayName}}">
+        <option value="beginner" {{if eq $r.Level "beginner"}}selected{{end}}>Pemula</option>
+        <option value="intermediate" {{if eq $r.Level "intermediate"}}selected{{end}}>Menengah</option>
+        <option value="advanced" {{if eq $r.Level "advanced"}}selected{{end}}>Mahir</option>
+      </select>
+    </form>
+  </div>
+  <div class="btn-pair" role="group" aria-label="Kehadiran {{$r.DisplayName}}">
+    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="attended"><button class="btn btn-secondary seg-btn {{if eq $r.Status "attended"}}is-ok{{end}}" aria-pressed="{{eq $r.Status "attended"}}">{{icon "check"}} Hadir</button></form>
+    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="no_show"><button class="btn btn-secondary seg-btn {{if eq $r.Status "no_show"}}is-bad{{end}}" aria-pressed="{{eq $r.Status "no_show"}}">{{icon "x"}} Tidak</button></form>
   </div>
 </li>
 {{end}}
@@ -50,7 +55,7 @@
 {{$s := .S}}
 <section id="rotasi" class="card mt-6 space-y-4 p-4" aria-labelledby="rotasi-title">
   <div class="flex flex-wrap items-end justify-between gap-3">
-    <h2 id="rotasi-title" class="section-title">{{icon "racket"}} Rotasi lapangan</h2>
+    <h2 id="rotasi-title" class="section-title">{{icon "rotate-cw"}} Rotasi lapangan</h2>
     <form method="post" action="/admin/sessions/{{$s.ID}}/rotation-rounds" class="flex flex-wrap items-end gap-2">
       {{template "csrf" .CSRF}}
       <div><label class="label" for="courts">Lapangan aktif</label><input id="courts" class="input w-24" type="number" min="1" name="courts" value="{{$s.CourtCount}}"></div>

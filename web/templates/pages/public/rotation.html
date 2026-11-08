@@ -11,7 +11,7 @@
   <div class="flex flex-wrap items-end justify-between gap-3">
     <div>
       <p class="text-sm text-muted">{{.Venue.Name}} · {{date .Session.StartsAt}}</p>
-      <h1 class="text-2xl font-extrabold sm:text-4xl">{{icon "racket" "size-7"}} Rotasi {{.Session.Title}}</h1>
+      <h1 class="text-2xl font-extrabold sm:text-4xl">{{icon "rotate-cw" "size-7"}} Rotasi {{.Session.Title}}</h1>
     </div>
     <p class="text-sm text-muted">Diperbarui {{clock .Updated}}</p>
   </div>
@@ -29,7 +29,7 @@
   </div>
   {{with .Sitting}}<div class="card p-4"><p class="mb-2 flex items-center gap-2 font-semibold">{{icon "hourglass"}} Menunggu giliran</p><p class="text-muted">{{range $i, $r := .}}{{if $i}}, {{end}}{{$r.DisplayName}}{{end}}</p></div>{{end}}
   {{else}}
-  {{template "empty" dict "Icon" "racket" "Text" "Rotasi belum dibuat. Halaman ini diperbarui otomatis."}}
+  {{template "empty" dict "Icon" "rotate-cw" "Text" "Rotasi belum dibuat. Halaman ini diperbarui otomatis."}}
   {{end}}
 </div>
 {{end}}

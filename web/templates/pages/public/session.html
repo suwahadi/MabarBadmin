@@ -19,10 +19,12 @@
           {{with $s.LevelLabel}}<div class="info-row"><dt>{{icon "level-2"}}<span class="sr-only">Level</span></dt><dd>{{.}}</dd></div>{{end}}
           <div class="info-row"><dt>{{icon "shuttlecock"}}<span class="sr-only">Shuttlecock</span></dt><dd>Shuttlecock {{if $s.ShuttlecockIncluded}}termasuk HTM{{else}}bayar terpisah{{end}}</dd></div>
         </dl>
-        <div class="flex flex-wrap gap-2">
+        {{if or $p.Venue.MapsUrl (eq $s.Status "published")}}
+        <div class="{{if and $p.Venue.MapsUrl (eq $s.Status "published")}}btn-pair{{else}}grid{{end}}">
           {{with $p.Venue.MapsUrl}}<a href="{{.}}" class="btn btn-secondary" target="_blank" rel="noopener">{{icon "map-pin"}} Buka peta</a>{{end}}
-          {{if eq $s.Status "published"}}<a href="/sessions/{{$s.Slug}}/rotation" class="btn btn-ghost">{{icon "racket"}} Papan rotasi</a>{{end}}
+          {{if eq $s.Status "published"}}<a href="/sessions/{{$s.Slug}}/rotation" class="btn btn-secondary">{{icon "rotate-cw"}} Papan rotasi</a>{{end}}
         </div>
+        {{end}}
         {{with $s.Notes}}<div class="rounded-xl bg-surface-2 p-4 text-sm"><p class="mb-1 font-semibold">Aturan sesi</p><p class="text-muted">{{nl2br .}}</p></div>{{end}}
       </section>
 

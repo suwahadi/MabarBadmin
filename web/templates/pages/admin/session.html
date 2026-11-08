@@ -10,7 +10,7 @@
   <div class="btn-pair w-full sm:w-auto sm:min-w-80">
     <a href="/admin/sessions/{{$s.ID}}/edit" class="btn btn-secondary">{{icon "pencil"}} Ubah</a>
     {{if eq $s.Status "draft"}}<form method="post" action="/admin/sessions/{{$s.ID}}/publish" data-confirm="Publikasikan sesi ini? Halaman sesi akan terbuka untuk pendaftaran.">{{template "csrf" .CSRF}}<button class="btn btn-primary">{{icon "check"}} Publikasi</button></form>
-    {{else}}<a href="/admin/sessions/{{$s.ID}}/game-day" class="btn btn-primary">{{icon "racket"}} Mode hari H</a>{{end}}
+    {{else}}<a href="/admin/sessions/{{$s.ID}}/game-day" class="btn btn-primary">{{icon "clipboard-check"}} Mode hari H</a>{{end}}
   </div>
   {{end}}
 </div>
@@ -103,16 +103,16 @@
       <p class="flex flex-wrap items-center gap-x-2 gap-y-1"><span class="text-sm tabular-nums text-muted md:hidden">{{add $i 1}}.</span><span class="font-medium">{{$r.DisplayName}}</span>{{if not $r.UserID}}<span class="badge badge-muted">Tamu</span>{{end}}{{template "pay_badge" $r.PaymentStatus}}{{if and (ne $r.Status "registered") (ne $r.Status "waitlisted")}}{{template "status_badge" $r.Status}}{{end}}</p>
       <p class="mt-0.5 text-xs text-muted"><a class="hover:underline" href="{{waLink $r.Phone}}" target="_blank" rel="noopener">{{phone $r.Phone}}</a> · {{level $r.Level}} · {{rupiah $r.AmountDue}}</p>
     </div>
-    <div class="flex flex-wrap gap-2 md:justify-end">
+    <div class="btn-row md:w-[24rem]">
       {{if and (ne $r.PaymentStatus "paid") (ne $r.PaymentStatus "pending")}}<form method="post" action="/admin/registrations/{{$r.ID}}/mark-paid" data-confirm="Tandai {{$r.DisplayName}} lunas {{rupiah $r.AmountDue}}?">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "badge-check"}} Lunas</button></form>{{end}}
       {{if eq $r.PaymentStatus "pending"}}<a class="btn btn-sm btn-secondary" href="/admin/payments">{{icon "receipt"}} Cek bukti</a>{{end}}
       {{if eq $.Kind "waitlist"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move" data-confirm="Pindahkan {{$r.DisplayName}} ke slot?">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="registered"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "chevron-up"}} Ke slot</button></form>
       {{else if eq $r.Status "registered"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move" data-confirm="Pindahkan {{$r.DisplayName}} ke Waiting List?">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="waitlisted"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "chevron-down"}} Ke Waiting List</button></form>{{end}}
       {{if or (eq $r.Status "registered") (eq $r.Status "waitlisted")}}
         {{if or (eq $r.PaymentStatus "unpaid") (eq $r.PaymentStatus "rejected")}}
-        <form method="post" action="/admin/registrations/{{$r.ID}}/delete" data-confirm="Hapus {{$r.DisplayName}}?" data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad" aria-label="Hapus {{$r.DisplayName}}">{{icon "trash-2"}}</button></form>
+        <form method="post" action="/admin/registrations/{{$r.ID}}/delete" data-confirm="Hapus {{$r.DisplayName}}?" data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad">{{icon "trash-2"}} Hapus</button></form>
         {{else}}
-        <form method="post" action="/admin/registrations/{{$r.ID}}/cancel" data-confirm="Batalkan {{$r.DisplayName}}? Pembayaran lunas masuk antrean refund." data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad" aria-label="Batalkan {{$r.DisplayName}}">{{icon "ban"}}</button></form>
+        <form method="post" action="/admin/registrations/{{$r.ID}}/cancel" data-confirm="Batalkan {{$r.DisplayName}}? Pembayaran lunas masuk antrean refund." data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad">{{icon "ban"}} Batalkan</button></form>
         {{end}}
       {{end}}
     </div>
