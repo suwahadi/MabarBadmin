@@ -1,20 +1,35 @@
 {{define "content"}}
 <div class="flex flex-wrap items-end justify-between gap-3 pb-5">
-  <h1 class="text-2xl font-bold">Sesi</h1>
-  <div class="flex flex-wrap gap-2"><a href="/admin/venues" class="btn btn-ghost">{{icon "map-pin"}} Venue</a><a href="/admin/templates" class="btn btn-secondary">{{icon "repeat"}} Dari template</a><a href="/admin/sessions/new" class="btn btn-primary">{{icon "plus"}} Sesi baru</a></div>
+  <div class="flex w-full items-center justify-between gap-3 sm:w-auto"><h1 class="text-2xl font-bold">Sesi</h1><a href="/admin/venues" class="btn btn-ghost">{{icon "map-pin"}} Venue</a></div>
+  <div class="btn-pair w-full sm:w-auto sm:min-w-80"><a href="/admin/templates" class="btn btn-secondary">{{icon "repeat"}} Dari template</a><a href="/admin/sessions/new" class="btn btn-primary">{{icon "plus"}} Sesi baru</a></div>
 </div>
 <div class="tabs mb-4">
   {{range (list "" "draft" "published" "closed" "cancelled")}}<a class="tab {{if eq . $.Data.Status}}is-active{{end}}" href="/admin/sessions{{if .}}?status={{.}}{{end}}">{{if .}}{{sessStatus .}}{{else}}Semua{{end}}</a>{{end}}
 </div>
 {{with .Data.Sessions}}
-<div class="table-wrap card"><table class="table">
-  <thead><tr><th>Tanggal</th><th>Sesi</th><th>Status</th><th class="text-right">Slot</th><th class="text-right">Lunas</th><th class="text-right">Antre</th></tr></thead>
-  <tbody>{{range .}}<tr>
-    <td class="whitespace-nowrap">{{shortdate .StartsAt}} {{clock .StartsAt}}</td>
-    <td><a class="font-medium hover:underline" href="/admin/sessions/{{.ID}}">{{.Title}}</a><span class="block text-xs text-muted">{{.VenueName}}</span></td>
-    <td><span class="badge badge-muted">{{sessStatus .Status}}</span></td>
-    <td class="text-right">{{.RegisteredCount}}/{{.Capacity}}</td><td class="text-right">{{.PaidCount}}</td><td class="text-right">{{.WaitlistedCount}}</td>
-  </tr>{{end}}</tbody>
-</table></div>
+<ul class="card divide-y divide-line overflow-hidden">
+  {{range .}}
+  <li>
+    <a href="/admin/sessions/{{.ID}}" class="row-link md:grid-cols-[7rem_1fr_auto_auto]">
+      <span class="hidden text-sm tabular-nums text-muted md:block">{{shortdate .StartsAt}}<span class="block">{{clock .StartsAt}}</span></span>
+      <span class="min-w-0">
+        <span class="block truncate font-semibold">{{.Title}}</span>
+        <span class="block truncate text-sm text-muted"><span class="md:hidden">{{shortdate .StartsAt}} {{clock .StartsAt}} · </span>{{.VenueName}}</span>
+        <span class="mt-1 flex flex-wrap gap-1.5 md:hidden">
+          <span class="badge badge-muted">{{icon "users" "size-3.5"}}{{.RegisteredCount}}/{{.Capacity}}</span>
+          <span class="badge badge-ok">{{icon "badge-check" "size-3.5"}}{{.PaidCount}} lunas</span>
+          {{if .WaitlistedCount}}<span class="badge badge-info">{{icon "hourglass" "size-3.5"}}{{.WaitlistedCount}}</span>{{end}}
+        </span>
+      </span>
+      <span class="hidden gap-1.5 md:flex">
+        <span class="badge badge-muted">{{icon "users" "size-3.5"}}{{.RegisteredCount}}/{{.Capacity}}</span>
+        <span class="badge badge-ok">{{icon "badge-check" "size-3.5"}}{{.PaidCount}} lunas</span>
+        {{if .WaitlistedCount}}<span class="badge badge-info">{{icon "hourglass" "size-3.5"}}{{.WaitlistedCount}} antre</span>{{end}}
+      </span>
+      <span class="flex items-center gap-2"><span class="badge {{if eq .Status "published"}}badge-ok{{else if eq .Status "cancelled"}}badge-bad{{else}}badge-muted{{end}}">{{sessStatus .Status}}</span>{{icon "chevron-right" "size-4 text-muted"}}</span>
+    </a>
+  </li>
+  {{end}}
+</ul>
 {{else}}{{template "empty" dict "Icon" "calendar-days" "Text" "Belum ada sesi."}}{{end}}
 {{end}}

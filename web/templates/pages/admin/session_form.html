@@ -23,9 +23,10 @@
   <details class="sm:col-span-2"><summary class="cursor-pointer font-medium">SEO (opsional)</summary>
     <div class="mt-3 grid gap-3"><div><label class="label" for="mt">Judul meta</label><input id="mt" class="input" name="meta_title" value="{{$s.MetaTitle}}"></div><div><label class="label" for="md">Deskripsi meta</label><textarea id="md" class="input" name="meta_description" rows="2">{{$s.MetaDescription}}</textarea></div></div>
   </details>
-  <div class="flex flex-wrap gap-2 sm:col-span-2">
-    <button class="btn btn-primary" name="action" value="save">Simpan</button>
-    {{if not $s.ID}}<button class="btn btn-secondary" name="action" value="publish">{{icon "check"}} Simpan dan publikasi</button>{{end}}
-  </div>
+  {{if $s.ID}}<div class="sm:col-span-2"><button class="btn btn-primary w-full sm:w-auto" name="action" value="save">Simpan perubahan</button></div>
+  {{else}}<div class="btn-pair sm:col-span-2">
+    <button class="btn btn-secondary" name="action" value="save" data-confirm="Simpan sesi sebagai draf?">Simpan draf</button>
+    <button class="btn btn-primary" name="action" value="publish" data-confirm="Simpan dan publikasikan sesi ini?">{{icon "check"}} Publikasi</button>
+  </div>{{end}}
 </form>
 {{end}}

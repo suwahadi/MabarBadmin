@@ -17,8 +17,8 @@
       <label class="check"><input type="checkbox" name="is_published" {{if $p.IsPublished}}checked{{end}}> Terbit</label>
       <label class="check"><input type="checkbox" name="show_in_footer" {{if $p.ShowInFooter}}checked{{end}}> Tampil di footer</label>
       <div><label class="label" for="so">Urutan</label><input id="so" class="input" type="number" name="sort_order" value="{{$p.SortOrder}}"></div>
-      <button class="btn btn-primary">Simpan halaman</button>
-      {{if $p.ID}}<a class="btn btn-ghost" href="/{{$p.Slug}}" target="_blank" rel="noopener">{{icon "external-link"}} Lihat</a>{{end}}
+      {{if $p.ID}}<div class="btn-pair"><a class="btn btn-secondary" href="/{{$p.Slug}}" target="_blank" rel="noopener">{{icon "external-link"}} Lihat</a><button class="btn btn-primary">Simpan</button></div>
+      {{else}}<button class="btn btn-primary">Simpan halaman</button>{{end}}
     </div>
     <div class="card grid gap-3 p-5">
       <p class="label">Gambar sampul (opsional)</p>
@@ -38,5 +38,5 @@
     </details>
   </div>
 </form>
-{{if $p.ID}}<form method="post" action="/admin/pages/{{$p.ID}}/delete" class="mt-4" data-confirm="Hapus halaman ini beserta gambarnya?">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus halaman</button></form>{{end}}
+{{if $p.ID}}<form method="post" action="/admin/pages/{{$p.ID}}/delete" class="mt-4" data-confirm="Hapus halaman ini beserta gambarnya?" data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus halaman</button></form>{{end}}
 {{end}}

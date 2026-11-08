@@ -7,11 +7,11 @@
       <div class="flex items-start gap-2">
         <details class="flex-1">
           <summary class="cursor-pointer font-semibold">{{$f.Question}} {{if not $f.IsPublished}}<span class="badge badge-muted">Draf</span>{{end}}</summary>
-          <form method="post" action="/admin/faq/{{$f.ID}}" class="mt-3 grid gap-3">{{template "csrf" $.CSRF}}{{template "faq_fields" $f}}<button class="btn btn-primary">Simpan</button></form>
-          <form method="post" action="/admin/faq/{{$f.ID}}/delete" class="mt-2" data-confirm="Hapus pertanyaan ini?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus</button></form>
+          <form id="faq-{{$f.ID}}" method="post" action="/admin/faq/{{$f.ID}}" class="mt-3 grid gap-3">{{template "csrf" $.CSRF}}{{template "faq_fields" $f}}</form>
+          <div class="btn-pair mt-3"><form method="post" action="/admin/faq/{{$f.ID}}/delete" data-confirm="Hapus pertanyaan ini?" data-confirm-tone="danger">{{template "csrf" $.CSRF}}<button class="btn btn-secondary text-bad">{{icon "trash-2"}} Hapus</button></form><button class="btn btn-primary" form="faq-{{$f.ID}}" data-confirm="Simpan perubahan pertanyaan ini?">Simpan</button></div>
         </details>
-        <form method="post" action="/admin/faq/reorder">{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{$f.ID}}"><input type="hidden" name="dir" value="up"><button class="icon-btn" aria-label="Naikkan">{{icon "chevron-up"}}</button></form>
-        <form method="post" action="/admin/faq/reorder">{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{$f.ID}}"><input type="hidden" name="dir" value="down"><button class="icon-btn" aria-label="Turunkan">{{icon "chevron-down"}}</button></form>
+        <form method="post" action="/admin/faq/reorder" data-no-confirm>{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{$f.ID}}"><input type="hidden" name="dir" value="up"><button class="icon-btn" aria-label="Naikkan">{{icon "chevron-up"}}</button></form>
+        <form method="post" action="/admin/faq/reorder" data-no-confirm>{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{$f.ID}}"><input type="hidden" name="dir" value="down"><button class="icon-btn" aria-label="Turunkan">{{icon "chevron-down"}}</button></form>
       </div>
     </li>
     {{else}}{{template "empty" dict "Icon" "circle-help" "Text" "Belum ada pertanyaan."}}{{end}}

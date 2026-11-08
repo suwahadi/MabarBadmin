@@ -5,8 +5,8 @@
     {{range .Data.Announcements}}
     <details class="card p-4">
       <summary class="flex cursor-pointer items-center gap-3"><span class="{{if eq .Style "important"}}text-bad{{else}}text-accent{{end}}">{{icon "megaphone"}}</span><span class="flex-1">{{.Message}}</span>{{if .IsActive}}<span class="badge badge-ok">Aktif</span>{{else}}<span class="badge badge-muted">Nonaktif</span>{{end}}</summary>
-      <form method="post" action="/admin/announcements/{{.ID}}" class="mt-4 grid gap-3">{{template "csrf" $.CSRF}}{{template "ann_fields" .}}<button class="btn btn-primary">Simpan</button></form>
-      <form method="post" action="/admin/announcements/{{.ID}}/delete" class="mt-2" data-confirm="Hapus pengumuman ini?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus</button></form>
+      <form id="ann-{{.ID}}" method="post" action="/admin/announcements/{{.ID}}" class="mt-4 grid gap-3">{{template "csrf" $.CSRF}}{{template "ann_fields" .}}</form>
+      <div class="btn-pair mt-3"><form method="post" action="/admin/announcements/{{.ID}}/delete" data-confirm="Hapus pengumuman ini?" data-confirm-tone="danger">{{template "csrf" $.CSRF}}<button class="btn btn-secondary text-bad">{{icon "trash-2"}} Hapus</button></form><button class="btn btn-primary" form="ann-{{.ID}}" data-confirm="Simpan perubahan pengumuman?">Simpan</button></div>
     </details>
     {{else}}{{template "empty" dict "Icon" "megaphone" "Text" "Belum ada pengumuman."}}{{end}}
   </div>

@@ -1,7 +1,7 @@
 {{define "content"}}
 {{$t := .Data.T}}
 {{template "page_head" dict "Title" (or (and $t.ID $t.Name) "Template baru") "Back" "/admin/templates"}}
-<form method="post" action="/admin/templates{{if $t.ID}}/{{$t.ID}}{{end}}" class="card grid gap-4 p-5 sm:grid-cols-2">
+<form id="template-form" method="post" action="/admin/templates{{if $t.ID}}/{{$t.ID}}{{end}}" class="card grid gap-4 p-5 sm:grid-cols-2">
   {{template "csrf" .CSRF}}
   <div class="sm:col-span-2"><label class="label" for="name">Nama template</label><input id="name" class="input" name="name" value="{{$t.Name}}" placeholder="Senin malam GBA" required></div>
   <div><label class="label" for="venue">Venue</label><select id="venue" class="input" name="venue_id" required>{{range .Data.Venues}}<option value="{{.ID}}" {{if eq .ID $t.VenueID}}selected{{end}}>{{.Name}}</option>{{end}}</select>{{if not .Data.Venues}}<p class="hint">Buat <a class="link" href="/admin/venues">venue</a> dulu.</p>{{end}}</div>
@@ -18,7 +18,7 @@
     <label class="check"><input type="checkbox" name="unique_code_enabled" {{if $t.UniqueCodeEnabled}}checked{{end}}> Pakai kode unik</label>
   </div>
   <div class="sm:col-span-2"><label class="label" for="notes">Catatan aturan</label><textarea id="notes" class="input" name="notes" rows="4">{{$t.Notes}}</textarea></div>
-  <div class="flex gap-2 sm:col-span-2"><button class="btn btn-primary">Simpan template</button></div>
+  {{if not $t.ID}}<div class="sm:col-span-2"><button class="btn btn-primary w-full sm:w-auto">Simpan template</button></div>{{end}}
 </form>
-{{if $t.ID}}<form method="post" action="/admin/templates/{{$t.ID}}/delete" class="mt-3" data-confirm="Hapus template ini? Sesi yang sudah dibuat tidak terhapus.">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus template</button></form>{{end}}
+{{if $t.ID}}<div class="btn-pair mt-4"><form method="post" action="/admin/templates/{{$t.ID}}/delete" data-confirm="Hapus template ini? Sesi yang sudah dibuat tidak terhapus." data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-secondary text-bad">{{icon "trash-2"}} Hapus template</button></form><button class="btn btn-primary" form="template-form">Simpan template</button></div>{{end}}
 {{end}}

@@ -8,27 +8,38 @@
 {{with .Data.Proofs}}
 <div class="grid gap-4 md:grid-cols-2">
   {{range .}}
-  <article class="card overflow-hidden" id="proof-{{.ID}}">
-    <div class="grid gap-4 p-4 sm:grid-cols-[140px_1fr]">
-      {{with .MediaID}}<a href="/admin/uploads/{{.}}" target="_blank" rel="noopener" class="block"><img src="/admin/uploads/{{.}}" alt="Bukti bayar" class="aspect-[3/4] w-full rounded-lg bg-surface-2 object-cover" loading="lazy" decoding="async"></a>{{else}}<div class="grid aspect-[3/4] place-items-center rounded-lg bg-surface-2 text-sm text-muted">{{icon "wallet" "size-8"}}</div>{{end}}
-      <div class="space-y-2 text-sm">
-        <p class="text-lg font-semibold">{{.DisplayName}}</p>
-        <p class="text-muted">{{.SessionTitle}} · {{shortdate .SessionStartsAt}}</p>
-        <dl class="grid grid-cols-2 gap-x-3 gap-y-1">
-          <dt class="text-muted">Nominal</dt><dd class="font-mono text-base font-bold">{{rupiah .AmountDue}}</dd>
-          <dt class="text-muted">Kode unik</dt><dd class="font-mono">{{if .UniqueCode}}{{.UniqueCode}}{{else}}–{{end}}</dd>
-          <dt class="text-muted">Metode</dt><dd>{{method .Method}}</dd>
-          <dt class="text-muted">Diunggah</dt><dd>{{shortdate .UploadedAt}} {{clock .UploadedAt}}</dd>
-          <dt class="text-muted">Peserta</dt><dd>{{status .RegistrationStatus}}</dd>
-          <dt class="text-muted">WA</dt><dd><a class="link" href="{{waLink .Phone}}" target="_blank" rel="noopener">{{phone .Phone}}</a></dd>
-        </dl>
-        {{with .ReviewNote}}<p class="text-muted">Catatan: {{.}}</p>{{end}}
+  <article class="card overflow-hidden" id="proof-{{.ID}}" x-data="toggle">
+    <div class="space-y-3 p-4 text-sm">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="truncate text-lg font-semibold">{{.DisplayName}}</p>
+          <p class="text-muted">{{.SessionTitle}} · {{shortdate .SessionStartsAt}}</p>
+        </div>
+        <p class="shrink-0 text-right font-mono text-lg font-bold">{{rupiah .AmountDue}}</p>
       </div>
+      <dl class="grid grid-cols-2 gap-x-3 gap-y-1">
+        <dt class="text-muted">Kode unik</dt><dd class="font-mono">{{if .UniqueCode}}{{.UniqueCode}}{{else}}–{{end}}</dd>
+        <dt class="text-muted">Metode</dt><dd>{{method .Method}}</dd>
+        <dt class="text-muted">Diunggah</dt><dd>{{shortdate .UploadedAt}} {{clock .UploadedAt}}</dd>
+        <dt class="text-muted">Peserta</dt><dd>{{status .RegistrationStatus}}</dd>
+        <dt class="text-muted">WA</dt><dd><a class="link" href="{{waLink .Phone}}" target="_blank" rel="noopener">{{phone .Phone}}</a></dd>
+      </dl>
+      {{with .ReviewNote}}<p class="text-muted">Catatan: {{.}}</p>{{end}}
+      {{with .MediaID}}<button type="button" class="btn btn-secondary w-full" data-lightbox-src="/admin/uploads/{{.}}" data-lightbox-alt="Bukti bayar">{{icon "receipt"}} Lihat bukti</button>
+      {{else}}<p class="text-muted">{{icon "wallet" "size-4"}} Dibayar tanpa bukti (ditandai manual) atau bukti sudah dihapus karena masa retensi.</p>{{end}}
     </div>
     {{if eq .Status "pending"}}
-    <div class="grid gap-2 border-t border-line bg-surface-2 p-3 sm:grid-cols-2">
-      <form method="post" action="/admin/payment-proofs/{{.ID}}/approve" hx-post="/admin/payment-proofs/{{.ID}}/approve" hx-target="#proof-{{.ID}}" hx-swap="outerHTML">{{template "csrf" $.CSRF}}<button class="btn btn-primary w-full">{{icon "badge-check"}} Konfirmasi</button></form>
-      <form method="post" action="/admin/payment-proofs/{{.ID}}/reject" hx-post="/admin/payment-proofs/{{.ID}}/reject" hx-target="#proof-{{.ID}}" hx-swap="outerHTML" class="flex gap-2">{{template "csrf" $.CSRF}}<input class="input" name="review_note" placeholder="Alasan tolak" aria-label="Alasan tolak" required><button class="btn btn-danger">{{icon "x"}}</button></form>
+    <div class="space-y-3 border-t border-line bg-surface-2 p-3">
+      <div class="btn-pair">
+        <button type="button" class="btn btn-secondary text-bad" @click="toggle" :aria-expanded="open" aria-controls="reject-{{.ID}}">{{icon "x"}} Tolak</button>
+        <form method="post" action="/admin/payment-proofs/{{.ID}}/approve" hx-post="/admin/payment-proofs/{{.ID}}/approve" hx-target="#proof-{{.ID}}" hx-swap="outerHTML" data-confirm="Konfirmasi pembayaran {{.DisplayName}} sebesar {{rupiah .AmountDue}}? Cek dulu mutasi rekening.">{{template "csrf" $.CSRF}}<button class="btn btn-primary">{{icon "badge-check"}} Konfirmasi</button></form>
+      </div>
+      <form id="reject-{{.ID}}" method="post" action="/admin/payment-proofs/{{.ID}}/reject" hx-post="/admin/payment-proofs/{{.ID}}/reject" hx-target="#proof-{{.ID}}" hx-swap="outerHTML" class="grid gap-2" x-show="open" x-cloak data-confirm="Tolak bukti bayar {{.DisplayName}}? Peserta bisa mengunggah ulang." data-confirm-tone="danger">
+        {{template "csrf" $.CSRF}}
+        <label class="label" for="note-{{.ID}}">Alasan penolakan</label>
+        <input id="note-{{.ID}}" class="input" name="review_note" placeholder="Misal: nominal tidak sesuai" required>
+        <button class="btn btn-danger">Kirim penolakan</button>
+      </form>
     </div>
     {{end}}
   </article>

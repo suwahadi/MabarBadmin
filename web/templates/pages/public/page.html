@@ -6,8 +6,10 @@
   {{with .Data.Cover}}<img src="{{.Src}}" srcset="{{.SrcSet}}" sizes="(min-width: 768px) 768px, 100vw" width="{{.Width}}" height="{{.Height}}" alt="{{.Alt}}" class="mb-6 w-full rounded-2xl" loading="lazy" decoding="async" style="aspect-ratio: {{.Width}} / {{.Height}}">{{end}}
   {{if .Data.IsContact}}
   <div class="mb-6 grid gap-3 sm:grid-cols-2">
-    {{with .Site.ContactWA}}<a href="{{waLink .}}" class="btn btn-primary btn-lg" target="_blank" rel="noopener">{{icon "message-circle"}} Chat WA {{phone .}}</a>{{end}}
-    {{with .Site.ContactEmail}}<a href="mailto:{{.}}" class="btn btn-secondary btn-lg">{{icon "mail"}} {{.}}</a>{{end}}
+    {{if and .Site.ContactWA .Site.ContactEmail}}<div class="btn-pair sm:col-span-2">{{end}}
+    {{with .Site.ContactWA}}<a href="{{waGreeting . $.Site.Name}}" class="btn btn-primary btn-lg" target="_blank" rel="noopener" aria-label="Chat WhatsApp {{phone .}}">{{icon "whatsapp"}} Chat WA</a>{{end}}
+    {{with .Site.ContactEmail}}<a href="mailto:{{.}}" class="btn btn-secondary btn-lg" aria-label="Email {{.}}">{{icon "mail"}} Email</a>{{end}}
+    {{if and .Site.ContactWA .Site.ContactEmail}}</div>{{end}}
     {{with .Site.Address}}<p class="card flex gap-2 p-4 text-sm sm:col-span-2">{{icon "map-pin"}}<span>{{nl2br .}}</span></p>{{end}}
     {{with .Site.MapsURL}}<a href="{{.}}" class="btn btn-secondary sm:col-span-2" target="_blank" rel="noopener">{{icon "map-pin"}} Buka peta</a>{{end}}
   </div>

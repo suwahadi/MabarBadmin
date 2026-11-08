@@ -7,6 +7,5 @@
     <thead><tr><th>Preset</th><th class="text-right">Gambar</th><th class="text-right">Ukuran</th></tr></thead>
     <tbody>{{range .Data.Rows}}<tr><td class="font-mono">{{.Preset}}</td><td class="text-right">{{.Files}}</td><td class="text-right">{{bytes .TotalBytes}}</td></tr>{{else}}<tr><td colspan="3" class="text-muted">Belum ada gambar.</td></tr>{{end}}</tbody>
   </table></div>
-  <p class="mt-3 text-sm text-muted">File yatim dibersihkan otomatis setiap minggu. Bukti bayar dihapus setelah masa retensi, status pembayaran tetap tersimpan.</p>
 </div>
 {{end}}

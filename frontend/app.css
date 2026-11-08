@@ -114,6 +114,18 @@
   .btn-ghost { @apply text-fg hover:bg-surface-2; }
   .btn-danger { background: var(--bad); color: #fff; }
   .btn-danger:hover { filter: brightness(1.1); }
+  .btn-pair { @apply grid grid-cols-2 gap-2; }
+  .btn-pair > *, .btn-pair > form > .btn { @apply w-full min-w-0; }
+  .btn-pair .btn { @apply px-2; }
+  .confirm-toast { @apply fixed inset-x-0 top-auto mx-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-line bg-surface p-4 text-fg shadow-2xl;
+    bottom: calc(1rem + env(safe-area-inset-bottom)); margin-bottom: 0; }
+  .confirm-toast::backdrop { background: rgb(0 0 0 / 0.35); }
+  .lightbox { @apply m-auto max-h-[92dvh] max-w-[96vw] overflow-visible border-0 bg-transparent p-0; }
+  .lightbox::backdrop { background: rgb(0 0 0 / 0.8); }
+  .lightbox img { @apply block max-h-[88dvh] w-auto max-w-[96vw] rounded-xl bg-white object-contain; }
+  .lightbox-close { @apply absolute -top-3 -right-3 grid size-11 place-items-center rounded-full bg-surface text-fg shadow-lg; }
+  .row-link { @apply grid items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-surface-2; grid-template-columns: 1fr auto; }
+
   .icon-btn { @apply inline-grid size-11 place-items-center rounded-xl text-fg hover:bg-surface-2; }
 
   .card { @apply rounded-2xl border border-line bg-surface; }

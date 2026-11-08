@@ -9,14 +9,13 @@
       <span class="min-w-0 flex-1"><span class="font-semibold">{{.Name}}</span>{{if eq .Role "admin"}} <span class="badge badge-info">Admin</span>{{end}}{{if not .IsActive}} <span class="badge badge-bad">Nonaktif</span>{{end}}<span class="block text-sm text-muted">{{phone .Phone}} · {{level .Level}}</span></span>
       <span class="text-sm text-muted">{{.AttendedCount}} hadir · {{.NoShowCount}} no-show</span>
     </summary>
-    <form method="post" action="/admin/members/{{.ID}}" class="mt-4 grid gap-3 sm:grid-cols-3 sm:items-end">
+    <form id="member-{{.ID}}" method="post" action="/admin/members/{{.ID}}" class="mt-4 grid gap-3 sm:grid-cols-3 sm:items-end">
       {{template "csrf" $.CSRF}}
       <div><label class="label" for="n{{.ID}}">Nama</label><input id="n{{.ID}}" class="input" name="name" value="{{.Name}}" required></div>
       <div><label class="label" for="l{{.ID}}">Level</label>{{template "level_select" dict "ID" (printf "l%d" .ID) "Value" .Level}}</div>
       <label class="check"><input type="checkbox" name="is_active" {{if .IsActive}}checked{{end}}> Aktif</label>
-      <button class="btn btn-primary sm:col-span-3">Simpan</button>
     </form>
-    <form method="post" action="/admin/members/{{.ID}}/reset-password" class="mt-2" data-confirm="Buat password sementara untuk {{.Name}}?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost">{{icon "repeat"}} Reset password</button></form>
+    <div class="btn-pair mt-3"><form method="post" action="/admin/members/{{.ID}}/reset-password" data-confirm="Buat password sementara untuk {{.Name}}?">{{template "csrf" $.CSRF}}<button class="btn btn-secondary">{{icon "repeat"}} Reset password</button></form><button class="btn btn-primary" form="member-{{.ID}}" data-confirm="Simpan data member {{.Name}}?">Simpan</button></div>
   </details>
   {{end}}
 </div>

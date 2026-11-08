@@ -1,7 +1,7 @@
 {{define "content"}}
 {{$s := .Data.S}}
 {{template "page_head" dict "Title" (or (and $s.ID "Ubah slide") "Slide baru") "Back" "/admin/hero-slides"}}
-<form method="post" action="/admin/hero-slides{{if $s.ID}}/{{$s.ID}}{{end}}" enctype="multipart/form-data" class="card grid gap-4 p-5 sm:grid-cols-2">
+<form id="hero-form" method="post" action="/admin/hero-slides{{if $s.ID}}/{{$s.ID}}{{end}}" enctype="multipart/form-data" class="card grid gap-4 p-5 sm:grid-cols-2">
   {{template "csrf" .CSRF}}
   <div class="sm:col-span-2 grid gap-2">
     <p class="label">Gambar desktop {{if not $s.ID}}(wajib){{end}}</p>
@@ -23,7 +23,7 @@
   <div><label class="label" for="sa">Mulai tayang</label><input id="sa" class="input" type="datetime-local" name="starts_at" value="{{inputDT $s.StartsAt}}"></div>
   <div><label class="label" for="ea">Berakhir</label><input id="ea" class="input" type="datetime-local" name="ends_at" value="{{inputDT $s.EndsAt}}"></div>
   <label class="check"><input type="checkbox" name="is_active" {{if $s.IsActive}}checked{{end}}> Aktif</label>
-  <div class="flex gap-2 sm:col-span-2"><button class="btn btn-primary">Simpan slide</button></div>
+  {{if not $s.ID}}<div class="sm:col-span-2"><button class="btn btn-primary w-full sm:w-auto">Simpan slide</button></div>{{end}}
 </form>
-{{if $s.ID}}<form method="post" action="/admin/hero-slides/{{$s.ID}}/delete" class="mt-3" data-confirm="Hapus slide ini beserta semua gambarnya?">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus slide</button></form>{{end}}
+{{if $s.ID}}<div class="btn-pair mt-4"><form method="post" action="/admin/hero-slides/{{$s.ID}}/delete" data-confirm="Hapus slide ini beserta semua gambarnya?" data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-secondary text-bad">{{icon "trash-2"}} Hapus slide</button></form><button class="btn btn-primary" form="hero-form">Simpan slide</button></div>{{end}}
 {{end}}

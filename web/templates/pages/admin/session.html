@@ -6,11 +6,13 @@
     <h1 class="text-2xl font-bold">{{$s.Title}} <span class="badge badge-muted align-middle">{{sessStatus $s.Status}}</span></h1>
     <p class="text-sm text-muted">{{date $s.StartsAt}}, {{timerange $s.StartsAt $s.EndsAt}} · {{$p.Venue.Name}}</p>
   </div>
-  <div class="flex flex-wrap gap-2">
-    {{if or (eq $s.Status "draft") (eq $s.Status "published")}}<a href="/admin/sessions/{{$s.ID}}/edit" class="btn btn-secondary">{{icon "pencil"}} Ubah</a>{{end}}
-    {{if eq $s.Status "draft"}}<form method="post" action="/admin/sessions/{{$s.ID}}/publish">{{template "csrf" .CSRF}}<button class="btn btn-primary">{{icon "check"}} Publikasi</button></form>{{end}}
-    {{if eq $s.Status "published"}}<a href="/admin/sessions/{{$s.ID}}/game-day" class="btn btn-primary">{{icon "racket"}} Mode hari H</a>{{end}}
+  {{if or (eq $s.Status "draft") (eq $s.Status "published")}}
+  <div class="btn-pair w-full sm:w-auto sm:min-w-80">
+    <a href="/admin/sessions/{{$s.ID}}/edit" class="btn btn-secondary">{{icon "pencil"}} Ubah</a>
+    {{if eq $s.Status "draft"}}<form method="post" action="/admin/sessions/{{$s.ID}}/publish" data-confirm="Publikasikan sesi ini? Halaman sesi akan terbuka untuk pendaftaran.">{{template "csrf" .CSRF}}<button class="btn btn-primary">{{icon "check"}} Publikasi</button></form>
+    {{else}}<a href="/admin/sessions/{{$s.ID}}/game-day" class="btn btn-primary">{{icon "racket"}} Mode hari H</a>{{end}}
   </div>
+  {{end}}
 </div>
 
 <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -20,16 +22,17 @@
   <div class="stat"><p class="stat-label">HTM</p><p class="stat-value text-lg">{{rupiah $s.Price}}</p></div>
 </div>
 
-<section class="card mt-6 space-y-3 p-5">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <h2 class="section-title">{{icon "megaphone"}} Broadcast WA</h2>
-    <div class="flex flex-wrap gap-2">
-      {{template "copy_button" dict "Text" .Data.Broadcast "Label" "Salin teks broadcast"}}
-      {{template "copy_button" dict "Text" .Data.PublicURL "Label" "Salin link sesi"}}
-      <a class="btn btn-ghost" href="{{.Data.PublicURL}}" target="_blank" rel="noopener">{{icon "external-link"}} Halaman publik</a>
-    </div>
+<section class="card mt-6 space-y-3 p-5" x-data="toggle">
+  <h2 class="section-title">{{icon "megaphone"}} Broadcast WA</h2>
+  <div class="btn-pair">
+    {{template "copy_button" dict "Text" .Data.Broadcast "Label" "Salin broadcast"}}
+    {{template "copy_button" dict "Text" .Data.PublicURL "Label" "Salin link sesi"}}
   </div>
-  <details><summary class="cursor-pointer text-sm text-muted">Pratinjau teks</summary><pre class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-xl bg-surface-2 p-4 text-sm">{{.Data.Broadcast}}</pre></details>
+  <div class="btn-pair">
+    <button type="button" class="btn btn-secondary" @click="toggle" :aria-expanded="open" aria-controls="broadcast-preview">{{icon "eye"}} Pratinjau teks</button>
+    <a class="btn btn-secondary" href="{{.Data.PublicURL}}" target="_blank" rel="noopener">{{icon "external-link"}} Halaman publik</a>
+  </div>
+  <pre id="broadcast-preview" class="max-h-96 overflow-auto whitespace-pre-wrap rounded-xl bg-surface-2 p-4 text-sm" x-show="open" x-cloak>{{.Data.Broadcast}}</pre>
 </section>
 
 <section class="card mt-6 p-5">
@@ -48,7 +51,7 @@
   {{if or (eq $s.Status "draft") (eq $s.Status "published")}}
   <details class="mt-6 rounded-xl border border-line p-4">
     <summary class="flex cursor-pointer items-center gap-2 font-semibold">{{icon "user-plus"}} Tambah peserta manual</summary>
-    <form method="post" action="/admin/sessions/{{$s.ID}}/registrations" class="mt-3 grid gap-3 sm:grid-cols-4 sm:items-end">
+    <form method="post" action="/admin/sessions/{{$s.ID}}/registrations" class="mt-3 grid gap-3 sm:grid-cols-4 sm:items-end" data-confirm="Tambahkan peserta ini ke sesi?">
       {{template "csrf" .CSRF}}
       <div><label class="label" for="m-name">Nama</label><input id="m-name" class="input" name="name" required></div>
       <div><label class="label" for="m-phone">No WA</label><input id="m-phone" class="input" name="phone" type="tel" required></div>
@@ -74,11 +77,13 @@
   <section class="card space-y-3 p-5">
     <h2 class="section-title">{{icon "sliders-horizontal"}} Status sesi</h2>
     <p class="text-sm text-muted">Batas refund {{datetime $s.RefundDeadlineAt}}{{with $s.PaymentDeadlineAt}} · batas bayar {{datetime .}}{{end}}.</p>
-    <div class="flex flex-wrap gap-2">
-      {{if eq $s.Status "published"}}<form method="post" action="/admin/sessions/{{$s.ID}}/close" data-confirm="Tutup sesi? Peserta yang belum ditandai hadir menjadi tidak datang, dan waiting list yang lunas masuk antrean refund.">{{template "csrf" .CSRF}}<button class="btn btn-primary">{{icon "check"}} Tutup sesi</button></form>{{end}}
-      {{if or (eq $s.Status "published") (eq $s.Status "draft")}}<form method="post" action="/admin/sessions/{{$s.ID}}/cancel" data-confirm="Batalkan sesi? Semua pembayaran lunas akan masuk antrean refund.">{{template "csrf" .CSRF}}<button class="btn btn-danger">{{icon "ban"}} Batalkan sesi</button></form>{{end}}
-      {{if eq $s.Status "draft"}}<form method="post" action="/admin/sessions/{{$s.ID}}/delete" data-confirm="Hapus draf ini?">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus draf</button></form>{{end}}
+    {{if or (eq $s.Status "published") (eq $s.Status "draft")}}
+    <div class="btn-pair">
+      {{if eq $s.Status "published"}}<form method="post" action="/admin/sessions/{{$s.ID}}/close" data-confirm="Tutup sesi? Peserta yang belum ditandai hadir menjadi tidak datang, dan waiting list yang lunas masuk antrean refund.">{{template "csrf" .CSRF}}<button class="btn btn-primary">{{icon "check"}} Tutup sesi</button></form>
+      {{else}}<form method="post" action="/admin/sessions/{{$s.ID}}/delete" data-confirm="Hapus draf ini?" data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-secondary text-bad">{{icon "trash-2"}} Hapus draf</button></form>{{end}}
+      <form method="post" action="/admin/sessions/{{$s.ID}}/cancel" data-confirm="Batalkan sesi? Semua pembayaran lunas akan masuk antrean refund.">{{template "csrf" .CSRF}}<button class="btn btn-danger">{{icon "ban"}} Batalkan sesi</button></form>
     </div>
+    {{end}}
   </section>
 </div>
 
@@ -90,30 +95,29 @@
 
 {{define "admin_reg_table"}}
 {{if .Regs}}
-<div class="table-wrap"><table class="table">
-  <thead><tr><th>#</th><th>Nama</th><th>Bayar</th><th class="text-right">Aksi</th></tr></thead>
-  <tbody>
-  {{range $i, $r := .Regs}}<tr>
-    <td>{{add $i 1}}</td>
-    <td><span class="font-medium">{{$r.DisplayName}}</span>{{if not $r.UserID}} <span class="badge badge-muted">Tamu</span>{{end}}<span class="block text-xs text-muted"><a class="hover:underline" href="{{waLink $r.Phone}}" target="_blank" rel="noopener">{{phone $r.Phone}}</a> · {{level $r.Level}} · {{rupiah $r.AmountDue}}</span></td>
-    <td>{{template "pay_badge" $r.PaymentStatus}}{{if ne $r.Status "registered"}}{{if ne $r.Status "waitlisted"}} {{template "status_badge" $r.Status}}{{end}}{{end}}</td>
-    <td>
-      <div class="flex flex-wrap justify-end gap-1">
-        {{if and (ne $r.PaymentStatus "paid") (ne $r.PaymentStatus "pending")}}<form method="post" action="/admin/registrations/{{$r.ID}}/mark-paid" data-confirm="Tandai {{$r.DisplayName}} lunas {{rupiah $r.AmountDue}}?">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "badge-check"}} Lunas</button></form>{{end}}
-        {{if eq $r.PaymentStatus "pending"}}<a class="btn btn-sm btn-secondary" href="/admin/payments">{{icon "receipt"}} Cek bukti</a>{{end}}
-        {{if eq $.Kind "waitlist"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="registered"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-ghost">{{icon "chevron-up"}} Ke slot</button></form>
-        {{else if eq $r.Status "registered"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="waitlisted"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-ghost">{{icon "chevron-down"}} Ke antre</button></form>{{end}}
-        {{if or (eq $r.Status "registered") (eq $r.Status "waitlisted")}}
-          {{if or (eq $r.PaymentStatus "unpaid") (eq $r.PaymentStatus "rejected")}}
-          <form method="post" action="/admin/registrations/{{$r.ID}}/delete" data-confirm="Hapus {{$r.DisplayName}}?">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-ghost text-bad" aria-label="Hapus">{{icon "trash-2"}}</button></form>
-          {{else}}
-          <form method="post" action="/admin/registrations/{{$r.ID}}/cancel" data-confirm="Batalkan {{$r.DisplayName}}? Pembayaran lunas masuk antrean refund.">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-ghost text-bad" aria-label="Batalkan">{{icon "ban"}}</button></form>
-          {{end}}
+<ol class="divide-y divide-line">
+  {{range $i, $r := .Regs}}
+  <li class="grid gap-2 py-3 md:grid-cols-[2rem_1fr_auto] md:items-center">
+    <span class="hidden text-sm tabular-nums text-muted md:block">{{add $i 1}}</span>
+    <div class="min-w-0">
+      <p class="flex flex-wrap items-center gap-x-2 gap-y-1"><span class="text-sm tabular-nums text-muted md:hidden">{{add $i 1}}.</span><span class="font-medium">{{$r.DisplayName}}</span>{{if not $r.UserID}}<span class="badge badge-muted">Tamu</span>{{end}}{{template "pay_badge" $r.PaymentStatus}}{{if and (ne $r.Status "registered") (ne $r.Status "waitlisted")}}{{template "status_badge" $r.Status}}{{end}}</p>
+      <p class="mt-0.5 text-xs text-muted"><a class="hover:underline" href="{{waLink $r.Phone}}" target="_blank" rel="noopener">{{phone $r.Phone}}</a> · {{level $r.Level}} · {{rupiah $r.AmountDue}}</p>
+    </div>
+    <div class="flex flex-wrap gap-2 md:justify-end">
+      {{if and (ne $r.PaymentStatus "paid") (ne $r.PaymentStatus "pending")}}<form method="post" action="/admin/registrations/{{$r.ID}}/mark-paid" data-confirm="Tandai {{$r.DisplayName}} lunas {{rupiah $r.AmountDue}}?">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "badge-check"}} Lunas</button></form>{{end}}
+      {{if eq $r.PaymentStatus "pending"}}<a class="btn btn-sm btn-secondary" href="/admin/payments">{{icon "receipt"}} Cek bukti</a>{{end}}
+      {{if eq $.Kind "waitlist"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move" data-confirm="Pindahkan {{$r.DisplayName}} ke slot?">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="registered"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "chevron-up"}} Ke slot</button></form>
+      {{else if eq $r.Status "registered"}}<form method="post" action="/admin/registrations/{{$r.ID}}/move" data-confirm="Pindahkan {{$r.DisplayName}} ke Waiting List?">{{template "csrf" $.CSRF}}<input type="hidden" name="to" value="waitlisted"><input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary">{{icon "chevron-down"}} Ke Waiting List</button></form>{{end}}
+      {{if or (eq $r.Status "registered") (eq $r.Status "waitlisted")}}
+        {{if or (eq $r.PaymentStatus "unpaid") (eq $r.PaymentStatus "rejected")}}
+        <form method="post" action="/admin/registrations/{{$r.ID}}/delete" data-confirm="Hapus {{$r.DisplayName}}?" data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad" aria-label="Hapus {{$r.DisplayName}}">{{icon "trash-2"}}</button></form>
+        {{else}}
+        <form method="post" action="/admin/registrations/{{$r.ID}}/cancel" data-confirm="Batalkan {{$r.DisplayName}}? Pembayaran lunas masuk antrean refund." data-confirm-tone="danger">{{template "csrf" $.CSRF}}<input type="hidden" name="back" value="{{$.Back}}"><button class="btn btn-sm btn-secondary text-bad" aria-label="Batalkan {{$r.DisplayName}}">{{icon "ban"}}</button></form>
         {{end}}
-      </div>
-    </td>
-  </tr>{{end}}
-  </tbody>
-</table></div>
+      {{end}}
+    </div>
+  </li>
+  {{end}}
+</ol>
 {{else}}<p class="text-sm text-muted">Belum ada peserta.</p>{{end}}
 {{end}}

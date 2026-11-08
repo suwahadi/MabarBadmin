@@ -172,22 +172,76 @@ Alpine.data("slider", () => ({
   },
 }));
 
+// Confirmation toast: every action form or button with data-confirm asks "Ya / Tidak" first.
+// The submitter is kept so buttons with name/value (e.g. draft vs publish) still send their value,
+// and HTMX forms continue through their own submit handling once confirmed.
+const confirmToast = {
+  dialog: null,
+  pending: null,
+  open(message, danger, onYes) {
+    const d = document.getElementById("confirm-toast");
+    if (!d) { if (window.confirm(message)) onYes(); return; }
+    d.querySelector("[data-confirm-text]").textContent = message;
+    const yes = d.querySelector("[data-confirm-yes]");
+    yes.classList.toggle("btn-danger", danger);
+    yes.classList.toggle("btn-primary", !danger);
+    this.dialog = d;
+    this.pending = onYes;
+    d.showModal();
+    d.querySelector("[data-confirm-no]").focus();
+  },
+  answer(yes) {
+    const run = this.pending;
+    this.pending = null;
+    if (this.dialog) this.dialog.close();
+    if (yes && run) run();
+  },
+};
+
+// Every POST form asks for confirmation unless it opts out with data-no-confirm (login, fast
+// checklists). Without a custom message the question is built from the button label.
+function defaultConfirm(form, submitter) {
+  if ((form.getAttribute("method") || "get").toLowerCase() !== "post" || form.hasAttribute("data-no-confirm")) return "";
+  const label = submitter ? (submitter.getAttribute("aria-label") || submitter.textContent).trim().replace(/\s+/g, " ") : "";
+  return label ? `Yakin ${label.charAt(0).toLowerCase()}${label.slice(1)}?` : "Lanjutkan tindakan ini?";
+}
+
 document.addEventListener("submit", (event) => {
   const form = event.target;
-  const message = form.dataset.confirm;
-  if (message && !window.confirm(message)) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
+  const submitter = event.submitter;
+  const message = (submitter && submitter.dataset.confirm) || form.dataset.confirm || defaultConfirm(form, submitter);
+  if (!message || form.dataset.confirmed === "1") {
+    delete form.dataset.confirmed;
+    return;
   }
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  const danger = (submitter && submitter.classList.contains("btn-danger")) || form.dataset.confirmTone === "danger";
+  confirmToast.open(message, danger, () => {
+    form.dataset.confirmed = "1";
+    form.requestSubmit(submitter && submitter.form === form ? submitter : undefined);
+  });
 }, true);
 
-document.addEventListener("htmx:confirm", (event) => {
-  const form = event.target.closest("form");
-  const message = form && form.dataset.confirm;
-  if (!message) return;
-  event.preventDefault();
-  if (window.confirm(message)) event.detail.issueRequest(true);
+document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-confirm-yes]")) confirmToast.answer(true);
+  else if (event.target.closest("[data-confirm-no]")) confirmToast.answer(false);
+  const thumb = event.target.closest("[data-lightbox-src]");
+  if (thumb) {
+    const box = document.getElementById("lightbox");
+    const img = box.querySelector("[data-lightbox-img]");
+    img.src = thumb.dataset.lightboxSrc;
+    img.alt = thumb.dataset.lightboxAlt || "";
+    box.showModal();
+  }
+  if (event.target.closest("[data-lightbox-close]") || event.target.id === "lightbox") {
+    document.getElementById("lightbox").close();
+  }
 });
+
+document.addEventListener("cancel", (event) => {
+  if (event.target.id === "confirm-toast") confirmToast.answer(false);
+}, true);
 
 document.addEventListener("change", (event) => {
   if (event.target.matches("[data-autosubmit]")) event.target.form.requestSubmit();

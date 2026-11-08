@@ -72,7 +72,7 @@
     </div>
     <div class="space-y-2 text-sm">
       <h2 class="font-semibold">Kontak</h2>
-      {{with .Site.ContactWA}}<p><a class="link-muted" href="{{waLink .}}" rel="noopener" target="_blank">{{icon "message-circle" "size-4"}} {{phone .}}</a></p>{{end}}
+      {{with .Site.ContactWA}}<p><a class="link-muted" href="{{waGreeting . $.Site.Name}}" rel="noopener" target="_blank" aria-label="Chat WhatsApp {{phone .}}">{{icon "whatsapp" "size-4"}} {{phone .}}</a></p>{{end}}
       {{with .Site.ContactEmail}}<p><a class="link-muted" href="mailto:{{.}}">{{icon "mail" "size-4"}} {{.}}</a></p>{{end}}
       {{with .Site.Address}}<p class="flex gap-2 text-muted">{{icon "map-pin" "size-4 mt-0.5"}}<span>{{nl2br .}}</span></p>{{end}}
     </div>

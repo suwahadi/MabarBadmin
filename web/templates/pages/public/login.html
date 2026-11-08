@@ -2,7 +2,7 @@
 <div class="mx-auto max-w-md px-4 pt-10">
   <div class="card space-y-5 p-6">
     <h1 class="text-2xl font-bold">Masuk</h1>
-    <form method="post" action="/login" class="grid gap-4">
+    <form method="post" action="/login" class="grid gap-4" data-no-confirm>
       {{template "csrf" .CSRF}}
       <input type="hidden" name="next" value="{{.Data.Next}}">
       <div><label class="label" for="phone">No WA</label><input id="phone" class="input" name="phone" type="tel" inputmode="tel" placeholder="0812-3456-7890" required autocomplete="username"></div>

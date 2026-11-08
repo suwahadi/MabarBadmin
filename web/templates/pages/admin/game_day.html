@@ -31,7 +31,7 @@
 {{$r := .R}}
 <li class="attendance flex flex-wrap items-center gap-3 py-2" id="att-{{$r.ID}}">
   <div class="min-w-0 flex-1"><p class="truncate font-medium">{{$r.DisplayName}}</p><p class="text-xs text-muted">{{level $r.Level}} · {{payStatus $r.PaymentStatus}}</p></div>
-  <form method="post" action="/admin/registrations/{{$r.ID}}/level" hx-post="/admin/registrations/{{$r.ID}}/level" hx-trigger="change" hx-swap="none">
+  <form method="post" action="/admin/registrations/{{$r.ID}}/level" hx-post="/admin/registrations/{{$r.ID}}/level" hx-trigger="change" hx-swap="none" data-no-confirm>
     {{template "csrf" .CSRF}}
     <select name="level" class="input input-sm" aria-label="Koreksi level {{$r.DisplayName}}">
       <option value="beginner" {{if eq $r.Level "beginner"}}selected{{end}}>Pemula</option>
@@ -39,9 +39,9 @@
       <option value="advanced" {{if eq $r.Level "advanced"}}selected{{end}}>Mahir</option>
     </select>
   </form>
-  <div class="seg" role="group" aria-label="Kehadiran {{$r.DisplayName}}">
-    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML">{{template "csrf" .CSRF}}<input type="hidden" name="status" value="attended"><button class="seg-btn {{if eq $r.Status "attended"}}is-ok{{end}}" aria-pressed="{{eq $r.Status "attended"}}">{{icon "check"}} Hadir</button></form>
-    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML">{{template "csrf" .CSRF}}<input type="hidden" name="status" value="no_show"><button class="seg-btn {{if eq $r.Status "no_show"}}is-bad{{end}}" aria-pressed="{{eq $r.Status "no_show"}}">{{icon "x"}} Tidak</button></form>
+  <div class="seg grid grid-cols-2" role="group" aria-label="Kehadiran {{$r.DisplayName}}">
+    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="attended"><button class="seg-btn {{if eq $r.Status "attended"}}is-ok{{end}}" aria-pressed="{{eq $r.Status "attended"}}">{{icon "check"}} Hadir</button></form>
+    <form method="post" action="/admin/registrations/{{$r.ID}}/attendance" hx-post="/admin/registrations/{{$r.ID}}/attendance" hx-target="#att-{{$r.ID}}" hx-swap="outerHTML" data-no-confirm>{{template "csrf" .CSRF}}<input type="hidden" name="status" value="no_show"><button class="seg-btn {{if eq $r.Status "no_show"}}is-bad{{end}}" aria-pressed="{{eq $r.Status "no_show"}}">{{icon "x"}} Tidak</button></form>
   </div>
 </li>
 {{end}}
@@ -78,7 +78,7 @@
     <div class="flex flex-wrap gap-2">{{range .Sitting}}{{template "swap-chip" .}}{{end}}</div>
   </div>
   {{end}}
-  <form id="swap-form" method="post" action="/admin/sessions/{{$s.ID}}/rotation-rounds/swap" hx-post="/admin/sessions/{{$s.ID}}/rotation-rounds/swap" hx-target="#rotasi" hx-swap="outerHTML" hidden>
+  <form id="swap-form" method="post" action="/admin/sessions/{{$s.ID}}/rotation-rounds/swap" hx-post="/admin/sessions/{{$s.ID}}/rotation-rounds/swap" hx-target="#rotasi" hx-swap="outerHTML" hidden data-no-confirm>
     {{template "csrf" $.CSRF}}<input type="hidden" name="player_a"><input type="hidden" name="player_b">
   </form>
   <form method="post" action="/admin/sessions/{{$s.ID}}/rotation-rounds/undo" data-confirm="Hapus ronde terakhir?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost btn-sm">{{icon "undo-2"}} Batalkan ronde terakhir</button></form>
