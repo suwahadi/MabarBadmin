@@ -16,6 +16,22 @@ Contoh memakai **Ubuntu 24.04** dan domain **mabarbadmin.web.id**. Sesuaikan bil
 | Service | `mabar.service`, `mabar-backup.timer` |
 | Aplikasi mendengarkan | `127.0.0.1:8080` (hanya diakses lewat Caddy) |
 
+## Cara cepat: skrip `install.sh` (build di server)
+
+Untuk VPS yang tidak bisa menerima file dari komputer lokal (misalnya instabox yang hanya diakses lewat terminal web), `deploy/install.sh` mengerjakan langkah 2 sampai 4 sekaligus. Skrip ini meng-clone repo, mengunduh Go dan Bun ke folder sementara, membuild binary statis, lalu menghapus toolchain-nya. Syarat: Debian/Ubuntu dengan systemd dan akses `sudo`.
+
+```sh
+curl -fsSLo install.sh https://raw.githubusercontent.com/suwahadi/MabarBadmin/main/deploy/install.sh
+sudo bash install.sh --base-url https://<url-publik-anda> --port 8080
+```
+
+- Aplikasi mendengarkan di `0.0.0.0:8080`. Arahkan URL publik (misalnya URL bawaan panel instabox) ke port **8080**. Bila memakai Caddy di server yang sama, tambahkan `--listen 127.0.0.1:8080`.
+- Pada instalasi pertama skrip memasang PostgreSQL, membuat database dan `/etc/mabar/env` dengan password acak, menjalankan migrasi dan seed, lalu meminta nama, no WA, dan password admin.
+- **Update ke versi terbaru:** jalankan ulang `sudo bash install.sh` (unduh ulang skripnya dulu). Data, `/etc/mabar/env`, dan akun admin tetap dipakai; rilis lama tetap ada di `/opt/mabar/releases` untuk rollback (langkah 7).
+- `--base-url` boleh diganti kapan saja dengan menjalankan ulang skrip beserta opsi itu.
+
+Bagian di bawah menjelaskan langkah manual yang sama secara rinci.
+
 ## 1. Persiapan
 
 **VPS:** minimal 1 vCPU, 1 GB RAM, 20 GB disk, akses SSH dengan user ber-`sudo`.
