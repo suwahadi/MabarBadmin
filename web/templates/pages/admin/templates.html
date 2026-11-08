@@ -1,0 +1,22 @@
+{{define "content"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5">
+  <div><a href="/admin/sessions" class="mb-1 inline-flex items-center gap-1 text-sm text-muted">{{icon "chevron-left" "size-4"}} Sesi</a><h1 class="text-2xl font-bold">Template sesi</h1><p class="text-sm text-muted">Pilih tanggal lalu buat sesi dalam hitungan detik.</p></div>
+  <div class="flex gap-2"><a href="/admin/venues" class="btn btn-secondary">{{icon "map-pin"}} Venue</a><a href="/admin/templates/new" class="btn btn-primary">{{icon "plus"}} Template</a></div>
+</div>
+<div class="grid gap-4 md:grid-cols-2">
+  {{range .Data.Templates}}
+  <article class="card space-y-4 p-5">
+    <div class="flex items-start justify-between gap-2">
+      <div><h2 class="text-lg font-semibold">{{.Name}}</h2><p class="text-sm text-muted">{{weekday .Weekday}} · {{.VenueName}} · {{.CourtCount}} lapangan · kuota {{.Capacity}} · {{rupiah .Price}}</p></div>
+      <a href="/admin/templates/{{.ID}}" class="icon-btn" aria-label="Ubah template">{{icon "pencil"}}</a>
+    </div>
+    <form method="post" action="/admin/templates/{{.ID}}/sessions" class="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+      {{template "csrf" $.CSRF}}
+      <div><label class="label" for="d{{.ID}}">Tanggal</label><input id="d{{.ID}}" class="input" type="date" name="date" value="{{inputDate (index $.Data.NextDates .ID)}}" required></div>
+      <button class="btn btn-secondary" name="action" value="draft">Simpan draf</button>
+      <button class="btn btn-primary" name="action" value="publish">{{icon "check"}} Publikasi</button>
+    </form>
+  </article>
+  {{else}}{{template "empty" dict "Icon" "repeat" "Text" "Belum ada template. Buat venue lalu template sesi berulang."}}{{end}}
+</div>
+{{end}}

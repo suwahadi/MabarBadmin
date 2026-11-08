@@ -1,0 +1,59 @@
+{{define "content"}}
+{{$d := .Data.D}}
+{{template "page_head" dict "Title" "Dasbor"}}
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="stat"><p class="stat-label">{{icon "calendar-days" "size-4"}} Sesi bulan ini</p><p class="stat-value">{{$d.SessionsThisMonth}}</p></div>
+  <div class="stat"><p class="stat-label">{{icon "users" "size-4"}} Peserta hadir</p><p class="stat-value">{{$d.AttendedThisMonth}}</p></div>
+  <div class="stat"><p class="stat-label">{{icon "wallet" "size-4"}} Bersih bulan ini</p><p class="stat-value {{if lt $d.NetThisMonth 0}}text-bad{{end}}">{{rupiah $d.NetThisMonth}}</p></div>
+  <div class="stat"><p class="stat-label">{{icon "court" "size-4"}} Rata-rata keterisian</p><p class="stat-value">{{$d.AvgFillPercent}}%</p></div>
+</div>
+
+<section class="mt-6">
+  <h2 class="section-title">{{icon "triangle-alert"}} Butuh tindakan</h2>
+  <div class="grid gap-3 sm:grid-cols-3">
+    <a href="/admin/payments" class="action-card {{if $d.PendingProofs}}is-hot{{end}}">{{icon "receipt"}}<span class="flex-1">Bukti bayar menunggu</span><strong>{{$d.PendingProofs}}</strong></a>
+    <a href="/admin/refunds" class="action-card {{if $d.PendingRefunds}}is-hot{{end}}">{{icon "undo-2"}}<span class="flex-1">Refund tertunda</span><strong>{{$d.PendingRefunds}}</strong></a>
+    <a href="{{with $d.Upcoming}}/admin/sessions/{{(index . 0).ID}}{{else}}/admin/sessions{{end}}" class="action-card {{if $d.UnpaidNearest}}is-hot{{end}}">{{icon "clock-alert"}}<span class="flex-1">Belum lunas di sesi terdekat</span><strong>{{$d.UnpaidNearest}}</strong></a>
+  </div>
+</section>
+
+<section class="mt-6">
+  <div class="flex items-center justify-between"><h2 class="section-title">{{icon "calendar-days"}} Sesi terdekat</h2><a href="/admin/templates" class="btn btn-primary">{{icon "plus"}} Buat sesi</a></div>
+  {{with $d.Upcoming}}
+  <div class="grid gap-3 md:grid-cols-3">
+    {{range .}}
+    <a href="/admin/sessions/{{.ID}}" class="card block space-y-3 p-4 hover:border-accent">
+      <div class="flex items-start justify-between gap-2"><p class="font-semibold">{{.Title}}</p><span class="badge badge-muted">{{sessStatus .Status}}</span></div>
+      <p class="text-sm text-muted">{{date .StartsAt}} · {{clock .StartsAt}} · {{.VenueName}}</p>
+      <div class="space-y-1 text-xs"><div class="flex justify-between"><span>Slot</span><span>{{.RegisteredCount}}/{{.Capacity}}</span></div><div class="meter"><span style="width: {{pct .RegisteredCount .Capacity}}%"></span></div></div>
+      <div class="space-y-1 text-xs"><div class="flex justify-between"><span>Lunas</span><span>{{.PaidCount}}/{{.RegisteredCount}}</span></div><div class="meter meter-ok"><span style="width: {{pct .PaidCount .RegisteredCount}}%"></span></div></div>
+    </a>
+    {{end}}
+  </div>
+  {{else}}{{template "empty" dict "Icon" "calendar-days" "Text" "Belum ada sesi mendatang."}}{{end}}
+</section>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+  <section class="card p-5">
+    <h2 class="section-title">{{icon "users"}} Hadir per sesi</h2>
+    {{with $d.Attendance}}
+    <div class="chart" role="img" aria-label="Grafik peserta hadir 8 sesi terakhir">
+      {{range .}}<div class="bar-col"><span class="bar-val">{{.Attended}}</span><div class="bar" style="height: {{pct .Attended $.Data.MaxAtt}}%"></div><span class="bar-label">{{shortdate .StartsAt}}</span></div>{{end}}
+    </div>
+    {{else}}<p class="text-sm text-muted">Belum ada sesi yang ditutup.</p>{{end}}
+  </section>
+  <section class="card p-5">
+    <h2 class="section-title">{{icon "wallet"}} Pemasukan vs biaya</h2>
+    <div class="chart" role="img" aria-label="Grafik pemasukan dan biaya 6 bulan terakhir">
+      {{range $d.Months}}<div class="bar-col"><div class="flex h-full items-end gap-1"><div class="bar" style="height: {{pct .Income $.Data.MaxMoney}}%" title="Pemasukan {{rupiah .Income}}"></div><div class="bar bar-cost" style="height: {{pct .Costs $.Data.MaxMoney}}%" title="Biaya {{rupiah .Costs}}"></div></div><span class="bar-label">{{monthShort .Month}}</span></div>{{end}}
+    </div>
+    <p class="mt-2 flex gap-4 text-xs text-muted"><span class="flex items-center gap-1"><span class="legend bg-accent"></span>Pemasukan bersih refund</span><span class="flex items-center gap-1"><span class="legend bar-cost"></span>Biaya</span></p>
+  </section>
+</div>
+
+<section class="card mt-6 p-5">
+  <div class="flex flex-wrap items-center justify-between gap-2"><h2 class="section-title">{{icon "trophy"}} Peringkat member</h2><a href="/admin/leaderboard?period={{.Data.Period}}" class="link text-sm">Lengkap</a></div>
+  {{template "period_tabs" dict "Base" "/admin" "Period" .Data.Period "Periods" .Data.Periods}}
+  {{template "board_table" .Data.Board}}
+</section>
+{{end}}

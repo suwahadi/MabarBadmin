@@ -1,0 +1,61 @@
+{{define "admin_shell"}}
+<div class="lg:flex">
+  <aside class="admin-sidebar hidden lg:flex" aria-label="Menu admin">
+    <a href="/admin" class="flex items-center gap-2 px-3 pb-6 text-lg font-bold">
+      <span class="grid size-9 place-items-center rounded-xl bg-accent text-accent-fg">{{icon "shuttlecock" "size-5"}}</span>{{.Site.Name}}
+    </a>
+    <nav class="grid gap-1">
+      {{template "admin_link" dict "Href" "/admin" "Icon" "layout-dashboard" "Label" "Dasbor" "Active" (eq .Section "dashboard")}}
+      {{template "admin_link" dict "Href" "/admin/sessions" "Icon" "calendar-days" "Label" "Sesi" "Active" (eq .Section "sessions")}}
+      {{template "admin_link" dict "Href" "/admin/payments" "Icon" "receipt" "Label" "Pembayaran" "Active" (eq .Section "payments")}}
+      {{template "admin_link" dict "Href" "/admin/members" "Icon" "users" "Label" "Member" "Active" (eq .Section "members")}}
+      {{template "admin_link" dict "Href" "/admin/finance" "Icon" "wallet" "Label" "Keuangan" "Active" (eq .Section "finance")}}
+      <p class="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">Konten</p>
+      {{template "admin_link" dict "Href" "/admin/announcements" "Icon" "megaphone" "Label" "Pengumuman" "Active" false}}
+      {{template "admin_link" dict "Href" "/admin/hero-slides" "Icon" "image" "Label" "Hero slider" "Active" false}}
+      {{template "admin_link" dict "Href" "/admin/pages" "Icon" "file-text" "Label" "Halaman" "Active" false}}
+      {{template "admin_link" dict "Href" "/admin/faq" "Icon" "circle-help" "Label" "FAQ" "Active" false}}
+      {{template "admin_link" dict "Href" "/admin/settings" "Icon" "sliders-horizontal" "Label" "Pengaturan" "Active" false}}
+    </nav>
+    <div class="mt-auto grid gap-1 border-t border-line pt-4">
+      <a href="/" class="nav-link">{{icon "external-link"}} Lihat situs</a>
+      <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button class="nav-link w-full">{{icon "log-out"}} Keluar</button></form>
+    </div>
+  </aside>
+  <div class="min-w-0 flex-1 pb-24 lg:pb-10">
+    <header class="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur lg:hidden">
+      <div class="flex h-14 items-center gap-2 px-4">
+        <span class="grid size-8 place-items-center rounded-lg bg-accent text-accent-fg">{{icon "shuttlecock" "size-4"}}</span>
+        <p class="truncate font-semibold">{{.Data.Title}}</p>
+      </div>
+    </header>
+    <main id="konten" class="mx-auto max-w-6xl px-4 py-6 lg:px-8">
+      {{template "flash" .}}
+      {{template "content" .}}
+    </main>
+  </div>
+</div>
+<nav class="bottom-nav lg:hidden" aria-label="Menu admin" x-data="toggle">
+  {{template "bottom_link" dict "Href" "/admin" "Icon" "layout-dashboard" "Label" "Dasbor" "Active" (eq .Section "dashboard")}}
+  {{template "bottom_link" dict "Href" "/admin/sessions" "Icon" "calendar-days" "Label" "Sesi" "Active" (eq .Section "sessions")}}
+  {{template "bottom_link" dict "Href" "/admin/payments" "Icon" "receipt" "Label" "Pembayaran" "Active" (eq .Section "payments")}}
+  {{template "bottom_link" dict "Href" "/admin/members" "Icon" "users" "Label" "Member" "Active" (eq .Section "members")}}
+  <button type="button" class="bottom-link {{if or (eq .Section "more") (eq .Section "finance")}}is-active{{end}}" @click="toggle" :aria-expanded="open" aria-controls="menu-lainnya">{{icon "ellipsis"}}<span>Lainnya</span></button>
+  <div id="menu-lainnya" class="sheet" x-show="open" x-cloak @click.outside="close">
+    <a href="/admin/finance" class="nav-link">{{icon "wallet"}} Keuangan</a>
+    <a href="/admin/refunds" class="nav-link">{{icon "undo-2"}} Refund</a>
+    <a href="/admin/venues" class="nav-link">{{icon "map-pin"}} Venue</a>
+    <a href="/admin/templates" class="nav-link">{{icon "repeat"}} Template sesi</a>
+    <a href="/admin/announcements" class="nav-link">{{icon "megaphone"}} Pengumuman</a>
+    <a href="/admin/hero-slides" class="nav-link">{{icon "image"}} Hero slider</a>
+    <a href="/admin/pages" class="nav-link">{{icon "file-text"}} Halaman</a>
+    <a href="/admin/faq" class="nav-link">{{icon "circle-help"}} FAQ</a>
+    <a href="/admin/settings" class="nav-link">{{icon "sliders-horizontal"}} Pengaturan</a>
+    <a href="/" class="nav-link">{{icon "external-link"}} Lihat situs</a>
+    <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button class="nav-link w-full">{{icon "log-out"}} Keluar</button></form>
+  </div>
+</nav>
+{{end}}
+
+{{define "admin_link"}}<a href="{{.Href}}" class="nav-link {{if .Active}}is-active{{end}}" {{if .Active}}aria-current="page"{{end}}>{{icon .Icon}} {{.Label}}</a>{{end}}
+{{define "bottom_link"}}<a href="{{.Href}}" class="bottom-link {{if .Active}}is-active{{end}}" {{if .Active}}aria-current="page"{{end}}>{{icon .Icon}}<span>{{.Label}}</span></a>{{end}}

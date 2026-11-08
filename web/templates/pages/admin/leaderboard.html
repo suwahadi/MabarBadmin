@@ -1,0 +1,5 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Peringkat member" "Back" "/admin/members"}}
+{{template "period_tabs" dict "Base" "/admin/leaderboard" "Period" .Data.Period "Periods" .Data.Periods}}
+<div class="card p-2">{{template "board_table" .Data.Board}}</div>
+{{end}}

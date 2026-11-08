@@ -1,0 +1,29 @@
+{{define "content"}}
+{{$s := .Data.S}}
+{{template "page_head" dict "Title" (or (and $s.ID "Ubah slide") "Slide baru") "Back" "/admin/hero-slides"}}
+<form method="post" action="/admin/hero-slides{{if $s.ID}}/{{$s.ID}}{{end}}" enctype="multipart/form-data" class="card grid gap-4 p-5 sm:grid-cols-2">
+  {{template "csrf" .CSRF}}
+  <div class="sm:col-span-2 grid gap-2">
+    <p class="label">Gambar desktop {{if not $s.ID}}(wajib){{end}}</p>
+    {{with .Data.Desktop}}<img src="{{.Src}}" alt="" class="max-h-48 w-auto rounded-lg" loading="lazy">{{end}}
+    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="input file-input" {{if not $s.ID}}required{{end}} aria-label="Gambar desktop">
+    <p class="hint">Rekomendasi 1600 x 900 piksel. Otomatis dikompres ke WebP.</p>
+  </div>
+  <div class="sm:col-span-2"><label class="label" for="alt">Teks alt gambar (wajib)</label><input id="alt" class="input" name="alt_text" value="{{with .Data.Desktop}}{{.Alt}}{{end}}" {{if not $s.ID}}required{{end}}></div>
+  <div class="sm:col-span-2 grid gap-2">
+    <p class="label">Gambar mobile (opsional)</p>
+    {{with .Data.Mobile}}<img src="{{.Src}}" alt="" class="max-h-48 w-auto rounded-lg" loading="lazy"><label class="check text-sm"><input type="checkbox" name="remove_mobile"> Hapus gambar mobile</label>{{end}}
+    <input type="file" name="mobile_image" accept="image/jpeg,image/png,image/webp" class="input file-input" aria-label="Gambar mobile">
+    <p class="hint">Rekomendasi 900 x 1200 piksel.</p>
+  </div>
+  <div><label class="label" for="t">Judul</label><input id="t" class="input" name="title" value="{{$s.Title}}"></div>
+  <div><label class="label" for="st">Subjudul</label><input id="st" class="input" name="subtitle" value="{{$s.Subtitle}}"></div>
+  <div><label class="label" for="cl">Label tombol</label><input id="cl" class="input" name="cta_label" value="{{$s.CtaLabel}}" placeholder="Ikut Mabar"></div>
+  <div><label class="label" for="cu">URL tombol</label><input id="cu" class="input" name="cta_url" value="{{$s.CtaUrl}}" placeholder="/sessions"></div>
+  <div><label class="label" for="sa">Mulai tayang</label><input id="sa" class="input" type="datetime-local" name="starts_at" value="{{inputDT $s.StartsAt}}"></div>
+  <div><label class="label" for="ea">Berakhir</label><input id="ea" class="input" type="datetime-local" name="ends_at" value="{{inputDT $s.EndsAt}}"></div>
+  <label class="check"><input type="checkbox" name="is_active" {{if $s.IsActive}}checked{{end}}> Aktif</label>
+  <div class="flex gap-2 sm:col-span-2"><button class="btn btn-primary">Simpan slide</button></div>
+</form>
+{{if $s.ID}}<form method="post" action="/admin/hero-slides/{{$s.ID}}/delete" class="mt-3" data-confirm="Hapus slide ini beserta semua gambarnya?">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus slide</button></form>{{end}}
+{{end}}

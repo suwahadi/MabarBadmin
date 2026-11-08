@@ -1,0 +1,6 @@
+{{define "settings_nav"}}
+<nav class="tabs mb-4 overflow-x-auto" aria-label="Grup pengaturan">
+  {{range .Groups}}<a class="tab whitespace-nowrap {{if eq .Slug $.Group}}is-active{{end}}" href="/admin/settings/{{.Slug}}">{{.Label}}</a>{{end}}
+  <a class="tab whitespace-nowrap {{if eq "storage" $.Group}}is-active{{end}}" href="/admin/settings/storage">Penyimpanan</a>
+</nav>
+{{end}}

@@ -1,0 +1,18 @@
+{{define "content"}}
+<div class="mx-auto max-w-md px-4 pt-10">
+  <div class="card space-y-5 p-6">
+    <div><h1 class="text-2xl font-bold">Daftar member</h1><p class="mt-1 text-sm text-muted">Riwayat main dan peringkatmu akan tercatat. Pendaftaran tamu dengan no WA yang sama otomatis digabung.</p></div>
+    <form method="post" action="/register" class="grid gap-4">
+      {{template "csrf" .CSRF}}
+      <input type="hidden" name="next" value="{{.Data.Next}}">
+      <div><label class="label" for="name">Nama tampilan</label><input id="name" class="input" name="name" required maxlength="60" autocomplete="nickname"></div>
+      <div><label class="label" for="phone">No WA</label><input id="phone" class="input" name="phone" type="tel" inputmode="tel" placeholder="0812-3456-7890" required autocomplete="tel"></div>
+      <div><label class="label" for="level">Level</label>{{template "level_select" dict "ID" "level" "Value" ""}}</div>
+      <div><label class="label" for="password">Password</label><input id="password" class="input" name="password" type="password" minlength="8" required autocomplete="new-password"><p class="hint">Minimal 8 karakter.</p></div>
+      <div><label class="label" for="password_confirm">Ulangi password</label><input id="password_confirm" class="input" name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></div>
+      <button class="btn btn-primary btn-lg">{{icon "user-plus"}} Buat akun</button>
+    </form>
+    <p class="text-sm text-muted">Sudah punya akun? <a class="link" href="/login">Masuk</a></p>
+  </div>
+</div>
+{{end}}

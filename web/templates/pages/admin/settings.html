@@ -1,0 +1,31 @@
+{{define "content"}}
+<h1 class="pb-4 text-2xl font-bold">Pengaturan</h1>
+{{template "settings_nav" .Data}}
+<form method="post" action="/admin/settings/{{.Data.Group}}" enctype="multipart/form-data" class="card grid gap-5 p-5">
+  {{template "csrf" .CSRF}}
+  {{range .Data.Fields}}
+  <div>
+    {{if eq .Kind "bool"}}
+      <label class="check"><input type="checkbox" name="{{.Key}}" {{if .Bool}}checked{{end}}> {{.Label}}</label>
+    {{else if eq .Kind "text"}}
+      <label class="label" for="{{.Key}}">{{.Label}}</label>
+      <textarea id="{{.Key}}" name="{{.Key}}" class="input font-mono text-sm" rows="{{if eq .Key "broadcast_template"}}22{{else}}3{{end}}">{{.Value}}</textarea>
+    {{else if eq .Kind "media"}}
+      <p class="label">{{.Label}}</p>
+      <div class="flex flex-wrap items-center gap-4">
+        {{with .Picture}}<img src="{{.Src}}" alt="" class="h-20 w-auto rounded-lg border border-line bg-white p-1" loading="lazy">{{else}}<span class="grid h-20 w-20 place-items-center rounded-lg border border-dashed border-line text-muted">{{icon "image"}}</span>{{end}}
+        <div class="grid flex-1 gap-2">
+          <input type="file" name="{{.Key}}" accept="image/jpeg,image/png,image/webp" class="input file-input" aria-label="Unggah {{.Label}}">
+          {{if .Picture}}<label class="check text-sm"><input type="checkbox" name="remove_{{.Key}}"> Hapus gambar</label>{{end}}
+        </div>
+      </div>
+    {{else}}
+      <label class="label" for="{{.Key}}">{{.Label}}</label>
+      <input id="{{.Key}}" name="{{.Key}}" class="input" value="{{.Value}}" {{if eq .Kind "int"}}type="number" min="{{.Min}}" max="{{.Max}}"{{else if eq .Kind "url"}}type="url" placeholder="https://"{{end}}>
+    {{end}}
+    {{with .Help}}<p class="hint">{{.}}</p>{{end}}
+  </div>
+  {{end}}
+  <button class="btn btn-primary justify-self-start">Simpan pengaturan</button>
+</form>
+{{end}}

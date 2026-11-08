@@ -1,0 +1,135 @@
+{{define "seat_panel"}}
+{{$p := .}}{{$r := .Reg}}
+<section id="tiket" class="card space-y-5 p-5" aria-labelledby="tiket-title">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <p class="text-sm text-muted">{{if $p.IsGuest}}Tiket tamu{{else}}Slot kamu{{end}}</p>
+      <h2 id="tiket-title" class="text-xl font-bold">{{$r.DisplayName}}</h2>
+      <p class="text-sm text-muted">{{maskPhone $r.Phone}}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">{{template "status_badge" $r.Status}}{{template "pay_badge" $r.PaymentStatus}}</div>
+  </div>
+
+  {{with $p.NewTicket}}
+  <div class="notice notice-ok space-y-3">
+    <p class="font-semibold">Link tiket untuk pengganti</p>
+    <p class="break-all font-mono text-sm">{{.}}</p>
+    {{template "copy_button" dict "Text" . "Label" "Salin link tiket"}}
+  </div>
+  {{end}}
+
+  {{if eq $r.Status "waitlisted"}}
+  <div class="notice notice-info">{{icon "hourglass"}}<p>Kamu di waiting list urutan <strong>{{$p.Position}}</strong>. Peserta yang sudah lunas diprioritaskan naik ke slot.</p></div>
+  {{else if eq $r.Status "transferred"}}
+  <div class="notice notice-muted">{{icon "repeat"}}<p>Slot ini sudah dioper{{with $p.Transferee}} ke <strong>{{.DisplayName}}</strong>{{end}}.</p></div>
+  {{else if eq $r.Status "cancelled"}}
+  <div class="notice notice-muted">{{icon "ban"}}<p>Pendaftaran ini sudah dibatalkan.</p></div>
+  {{end}}
+
+  <dl class="grid gap-3 rounded-xl bg-surface-2 p-4 text-sm sm:grid-cols-2">
+    <div><dt class="text-muted">Sesi</dt><dd class="font-medium"><a class="hover:underline" href="/sessions/{{$p.Session.Slug}}">{{$p.Session.Title}}</a></dd></div>
+    <div><dt class="text-muted">Waktu</dt><dd class="font-medium">{{date $p.Session.StartsAt}}, {{timerange $p.Session.StartsAt $p.Session.EndsAt}}</dd></div>
+    <div><dt class="text-muted">Venue</dt><dd class="font-medium">{{$p.Venue.Name}}</dd></div>
+    <div><dt class="text-muted">Nominal bayar</dt><dd class="text-lg font-bold text-accent">{{rupiah $r.AmountDue}}{{if gt $r.UniqueCode 0}} <span class="text-xs font-normal text-muted">(termasuk kode unik {{$r.UniqueCode}})</span>{{end}}</dd></div>
+  </dl>
+
+  {{if $p.CanUpload}}
+  <div class="space-y-4">
+    <h3 class="flex items-center gap-2 font-semibold">{{icon "wallet"}} Cara bayar</h3>
+    <p class="text-sm text-muted">Transfer tepat <strong class="text-fg">{{rupiah $r.AmountDue}}</strong> agar admin mudah mencocokkan, lalu unggah bukti di bawah.{{if $p.Session.PaymentDeadlineAt}} Batas bayar {{datetime (derefT $p.Session.PaymentDeadlineAt)}}.{{else}} Pembayaran diterima sampai sesi dimulai; yang lunas lebih dulu diprioritaskan saat kuota penuh.{{end}}</p>
+    {{template "payment_info" $p}}
+    {{if eq $r.PaymentStatus "rejected"}}{{with index $p.Proofs 0}}<div class="notice notice-bad">{{icon "triangle-alert"}}<p>Bukti sebelumnya ditolak: {{.ReviewNote}}. Silakan unggah ulang.</p></div>{{end}}{{end}}
+    <form method="post" action="{{$p.Base}}/payment-proofs" enctype="multipart/form-data" class="grid gap-3 rounded-xl border border-dashed border-line p-4">
+      {{template "csrf" $p.CSRF}}
+      <fieldset class="grid gap-2">
+        <legend class="label mb-1">Metode pembayaran</legend>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="choice"><input type="radio" name="payment_method" value="qris" required> {{icon "qr-code"}} QRIS</label>
+          <label class="choice"><input type="radio" name="payment_method" value="bank_transfer" required> {{icon "landmark"}} Transfer</label>
+        </div>
+      </fieldset>
+      <div>
+        <label for="proof" class="label">Bukti bayar</label>
+        <input id="proof" name="proof" type="file" accept="image/jpeg,image/png,image/webp" required class="input file-input">
+        <p class="hint">JPG, PNG, atau WebP, maks 5 MB.</p>
+      </div>
+      <button class="btn btn-primary">{{icon "upload"}} Kirim bukti bayar</button>
+    </form>
+  </div>
+  {{else if eq $r.PaymentStatus "pending"}}
+  <div class="notice notice-warn">{{icon "clock-alert"}}<p>Bukti bayar sedang menunggu konfirmasi admin.</p></div>
+  {{else if eq $r.PaymentStatus "paid"}}
+  <div class="notice notice-ok">{{icon "badge-check"}}<p>Pembayaran sudah dikonfirmasi. Sampai jumpa di lapangan!</p></div>
+  {{end}}
+
+  {{with $p.Proofs}}
+  <details class="text-sm">
+    <summary class="cursor-pointer font-medium">Riwayat bukti bayar ({{len .}})</summary>
+    <ul class="mt-2 divide-y divide-line">
+      {{range .}}<li class="flex flex-wrap items-center justify-between gap-2 py-2">
+        <span>{{datetime .UploadedAt}} · {{method .Method}}</span>
+        <span class="flex items-center gap-2">
+          <span class="badge {{if eq .Status "approved"}}badge-ok{{else if eq .Status "rejected"}}badge-bad{{else}}badge-warn{{end}}">{{if eq .Status "approved"}}Diterima{{else if eq .Status "rejected"}}Ditolak{{else}}Menunggu{{end}}</span>
+          {{with .MediaID}}<a class="link" href="{{$p.ProofBase}}/{{.}}" target="_blank" rel="noopener">Lihat</a>{{end}}
+        </span>
+      </li>{{end}}
+    </ul>
+  </details>
+  {{end}}
+
+  {{with $p.Refund}}
+  <div class="space-y-3 rounded-xl border border-line p-4">
+    <h3 class="flex items-center gap-2 font-semibold">{{icon "undo-2"}} Refund {{rupiah .Amount}}</h3>
+    {{if eq .Status "completed"}}<p class="text-sm text-muted">Sudah ditransfer admin{{with .CompletedAt}} pada {{datetime .}}{{end}}.</p>
+    {{else if .AccountNumber}}<p class="text-sm text-muted">Menunggu transfer ke {{.BankName}} {{.AccountNumber}} a.n. {{.AccountName}}.</p>
+    {{else}}
+    <p class="text-sm">Isi rekening tujuan refund agar admin bisa mentransfer.</p>
+    <form method="post" action="{{$p.Base}}/refund-account" class="grid gap-3 sm:grid-cols-3">
+      {{template "csrf" $p.CSRF}}
+      <input class="input" name="refund_bank_name" placeholder="Bank / e-wallet" aria-label="Nama bank" required>
+      <input class="input" name="refund_account_number" placeholder="No rekening" aria-label="No rekening" inputmode="numeric" required>
+      <input class="input" name="refund_account_name" placeholder="Atas nama" aria-label="Atas nama" required>
+      <button class="btn btn-primary sm:col-span-3">Simpan rekening</button>
+    </form>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{if $p.CanChange}}
+  <div class="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">
+    <details class="rounded-xl border border-line p-4">
+      <summary class="flex cursor-pointer items-center gap-2 font-semibold">{{icon "repeat"}} Oper slot</summary>
+      <p class="mt-2 text-sm text-muted">Slot dan status bayar pindah ke pengganti. Urusan uang di antara kalian.</p>
+      <form method="post" action="{{$p.Base}}/transfer" class="mt-3 grid gap-3" data-confirm="Oper slot ke orang ini? Tindakan ini tidak bisa dibatalkan.">
+        {{template "csrf" $p.CSRF}}
+        <div><label class="label" for="t-name">Nama pengganti</label><input id="t-name" class="input" name="name" required maxlength="60"></div>
+        <div><label class="label" for="t-phone">No WA pengganti</label><input id="t-phone" class="input" name="phone" type="tel" inputmode="tel" placeholder="0812-3456-7890" required></div>
+        <div><label class="label" for="t-level">Level</label>{{template "level_select" dict "ID" "t-level" "Value" ""}}</div>
+        <button class="btn btn-secondary">{{icon "repeat"}} Oper slot</button>
+      </form>
+    </details>
+    <details class="rounded-xl border border-line p-4">
+      <summary class="flex cursor-pointer items-center gap-2 font-semibold text-bad">{{icon "ban"}} Batalkan</summary>
+      {{if eq $r.PaymentStatus "paid"}}
+        {{if $p.WillRefund}}
+        <p class="mt-2 text-sm text-muted">Kamu berhak refund penuh {{rupiah $r.AmountDue}}. Isi rekening tujuan refund.</p>
+        {{else}}
+        <p class="mt-2 notice notice-bad text-sm">Batas refund sudah lewat ({{datetime $p.Session.RefundDeadlineAt}}). Jika batal, pembayaran hangus. Sebaiknya oper slot.</p>
+        {{end}}
+      {{else}}
+      <p class="mt-2 text-sm text-muted">Slotmu akan diberikan ke waiting list teratas.</p>
+      {{end}}
+      <form method="post" action="{{$p.Base}}/cancel" class="mt-3 grid gap-3" data-confirm="Yakin membatalkan pendaftaran?">
+        {{template "csrf" $p.CSRF}}
+        {{if and (eq $r.PaymentStatus "paid") $p.WillRefund}}
+        <input class="input" name="refund_bank_name" placeholder="Bank / e-wallet" aria-label="Nama bank">
+        <input class="input" name="refund_account_number" placeholder="No rekening" aria-label="No rekening" inputmode="numeric">
+        <input class="input" name="refund_account_name" placeholder="Atas nama" aria-label="Atas nama">
+        {{end}}
+        <button class="btn btn-danger">{{icon "ban"}} Batalkan pendaftaran</button>
+      </form>
+    </details>
+  </div>
+  {{end}}
+</section>
+{{end}}

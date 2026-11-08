@@ -1,0 +1,23 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Refund" "Back" "/admin/payments"}}
+<div class="tabs mb-4">
+  <a class="tab {{if eq .Data.Status "pending"}}is-active{{end}}" href="/admin/refunds">Menunggu transfer</a>
+  <a class="tab {{if eq .Data.Status "completed"}}is-active{{end}}" href="/admin/refunds?status=completed">Selesai</a>
+</div>
+{{with .Data.Refunds}}
+<div class="grid gap-3">
+  {{range .}}
+  <article class="card flex flex-wrap items-center gap-4 p-4">
+    <div class="min-w-0 flex-1 space-y-1">
+      <p class="font-semibold">{{.DisplayName}} · <span class="font-mono">{{rupiah .Amount}}</span></p>
+      <p class="text-sm text-muted">{{.SessionTitle}} · {{shortdate .SessionStartsAt}} · <a class="link" href="{{waLink .Phone}}" target="_blank" rel="noopener">{{phone .Phone}}</a></p>
+      <p class="text-sm">{{if .AccountNumber}}{{icon "landmark" "size-4"}} {{.BankName}} <span class="font-mono">{{.AccountNumber}}</span> a.n. {{.AccountName}}{{else}}<span class="text-warn">Rekening belum diisi peserta. Hubungi lewat WA.</span>{{end}}</p>
+    </div>
+    {{if eq .Status "pending"}}
+    <form method="post" action="/admin/refunds/{{.ID}}/complete" data-confirm="Tandai refund {{rupiah .Amount}} ke {{.DisplayName}} sudah ditransfer?">{{template "csrf" $.CSRF}}<button class="btn btn-primary">{{icon "check"}} Tandai sudah di-refund</button></form>
+    {{else}}<span class="badge badge-ok">Selesai {{with .CompletedAt}}{{shortdate .}}{{end}}</span>{{end}}
+  </article>
+  {{end}}
+</div>
+{{else}}{{template "empty" dict "Icon" "undo-2" "Text" "Tidak ada refund di daftar ini."}}{{end}}
+{{end}}

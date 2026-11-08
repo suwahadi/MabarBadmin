@@ -1,0 +1,21 @@
+{{define "content"}}
+<div class="mx-auto max-w-4xl px-4 pt-6">
+  {{template "page_head" dict "Title" "Riwayat sesi" "Back" "/me"}}
+  <section class="card px-5 pb-2">{{template "my_regs" (dict "Regs" .Data.Registrations "Limit" 0)}}</section>
+</div>
+{{end}}
+{{define "my_regs"}}
+{{if .Regs}}
+<ul class="divide-y divide-line">
+  {{range $r := .Regs}}
+  <li class="flex flex-wrap items-center gap-3 py-3">
+    <div class="min-w-0 flex-1">
+      <a href="/sessions/{{$r.SessionSlug}}#tiket" class="font-medium hover:underline">{{$r.SessionTitle}}</a>
+      <p class="text-sm text-muted">{{date $r.SessionStartsAt}} · {{$r.VenueName}} · {{rupiah $r.AmountDue}}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">{{template "status_badge" $r.Status}}{{template "pay_badge" $r.PaymentStatus}}</div>
+  </li>
+  {{end}}
+</ul>
+{{else}}<p class="py-4 text-sm text-muted">Belum ada sesi.</p>{{end}}
+{{end}}

@@ -1,0 +1,35 @@
+{{define "content"}}
+<div class="mx-auto max-w-6xl px-4 pt-6">
+  <div hx-get="/sessions/{{.Data.Board.Session.Slug}}/rotation" hx-trigger="every 20s" hx-swap="innerHTML">
+    {{template "board" .Data.Board}}
+  </div>
+</div>
+{{end}}
+
+{{define "board"}}
+<div class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-sm text-muted">{{.Venue.Name}} · {{date .Session.StartsAt}}</p>
+      <h1 class="text-2xl font-extrabold sm:text-4xl">{{icon "racket" "size-7"}} Rotasi {{.Session.Title}}</h1>
+    </div>
+    <p class="text-sm text-muted">Diperbarui {{clock .Updated}}</p>
+  </div>
+  {{with .Current}}
+  <p class="text-lg font-semibold">Ronde {{.Number}}</p>
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {{range .Matches}}
+    <article class="card court-card">
+      <p class="court-label">{{icon "court" "size-5"}} Lapangan {{.Court}}</p>
+      <div class="team"><span>{{(index .TeamA 0).DisplayName}}</span><span>{{(index .TeamA 1).DisplayName}}</span></div>
+      <p class="vs">VS</p>
+      <div class="team"><span>{{(index .TeamB 0).DisplayName}}</span><span>{{(index .TeamB 1).DisplayName}}</span></div>
+    </article>
+    {{end}}
+  </div>
+  {{with .Sitting}}<div class="card p-4"><p class="mb-2 flex items-center gap-2 font-semibold">{{icon "hourglass"}} Duduk dulu</p><p class="text-muted">{{range $i, $r := .}}{{if $i}}, {{end}}{{$r.DisplayName}}{{end}}</p></div>{{end}}
+  {{else}}
+  {{template "empty" dict "Icon" "racket" "Text" "Rotasi belum dibuat. Halaman ini diperbarui otomatis."}}
+  {{end}}
+</div>
+{{end}}

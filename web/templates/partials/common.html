@@ -1,0 +1,78 @@
+{{define "csrf"}}<input type="hidden" name="csrf_token" value="{{.}}">{{end}}
+
+{{define "pay_badge"}}<span class="badge badge-{{payTone .}}">{{if eq . "paid"}}{{icon "badge-check" "size-3.5"}}{{else if eq . "pending"}}{{icon "clock-alert" "size-3.5"}}{{else if eq . "refund_pending"}}{{icon "undo-2" "size-3.5"}}{{end}}{{payStatus .}}</span>{{end}}
+
+{{define "level_badge"}}<span class="badge badge-muted" title="Level {{level .}}">{{if eq . "advanced"}}{{icon "level-3" "size-3.5"}}{{else if eq . "intermediate"}}{{icon "level-2" "size-3.5"}}{{else}}{{icon "level-1" "size-3.5"}}{{end}}{{level .}}</span>{{end}}
+
+{{define "status_badge"}}<span class="badge {{if eq . "waitlisted"}}badge-info{{else if or (eq . "cancelled") (eq . "no_show")}}badge-bad{{else if eq . "attended"}}badge-ok{{else}}badge-muted{{end}}">{{if eq . "waitlisted"}}{{icon "hourglass" "size-3.5"}}{{else if eq . "transferred"}}{{icon "repeat" "size-3.5"}}{{end}}{{status .}}</span>{{end}}
+
+{{define "level_select"}}
+<select name="level" id="{{.ID}}" class="input" required>
+  <option value="" {{if not .Value}}selected{{end}} disabled>Pilih level</option>
+  <option value="beginner" {{if eq .Value "beginner"}}selected{{end}}>Pemula</option>
+  <option value="intermediate" {{if eq .Value "intermediate"}}selected{{end}}>Menengah</option>
+  <option value="advanced" {{if eq .Value "advanced"}}selected{{end}}>Mahir</option>
+</select>
+{{end}}
+
+{{define "page_head"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5">
+  <div>
+    {{with .Back}}<a href="{{.}}" class="mb-1 inline-flex items-center gap-1 text-sm text-muted hover:text-fg">{{icon "chevron-left" "size-4"}} Kembali</a>{{end}}
+    <h1 class="text-2xl font-bold tracking-tight">{{.Title}}</h1>
+    {{with .Sub}}<p class="mt-1 text-sm text-muted">{{.}}</p>{{end}}
+  </div>
+</div>
+{{end}}
+
+{{define "empty"}}<div class="card grid place-items-center gap-2 px-6 py-10 text-center text-muted">{{icon .Icon "size-8"}}<p>{{.Text}}</p></div>{{end}}
+
+{{define "copy_button"}}
+<button type="button" class="btn btn-secondary" data-copy-text="{{.Text}}">
+  <span data-copy-icon>{{icon "copy"}}</span><span data-copy-done hidden>{{icon "check"}}</span>
+  <span data-copy-label>{{.Label}}</span>
+</button>
+{{end}}
+
+{{define "session_card"}}
+<article class="card flex flex-col gap-4 p-4">
+  <div class="flex items-start gap-3">
+    <div class="date-chip"><span class="text-xs uppercase">{{monthShort .StartsAt}}</span><span class="text-2xl font-bold leading-none">{{day .StartsAt}}</span></div>
+    <div class="min-w-0 flex-1">
+      <h3 class="font-semibold leading-snug"><a href="/sessions/{{.Slug}}" class="hover:underline">{{.Title}}</a></h3>
+      <p class="mt-1 flex items-center gap-1.5 text-sm text-muted">{{icon "clock" "size-4"}} {{date .StartsAt}}, {{timerange .StartsAt .EndsAt}}</p>
+      <p class="mt-0.5 flex items-center gap-1.5 text-sm text-muted">{{icon "map-pin" "size-4"}} {{.VenueName}}</p>
+    </div>
+  </div>
+  <div class="flex flex-wrap items-center gap-2 text-sm">
+    <span class="badge badge-muted">{{icon "users" "size-3.5"}}{{.RegisteredCount}}/{{.Capacity}}</span>
+    <span class="badge badge-muted">{{icon "wallet" "size-3.5"}}{{rupiah .Price}}</span>
+    {{with .LevelLabel}}<span class="badge badge-muted">{{icon "level-2" "size-3.5"}}{{.}}</span>{{end}}
+    {{if gt .WaitlistedCount 0}}<span class="badge badge-info">{{icon "hourglass" "size-3.5"}}{{.WaitlistedCount}} antre</span>{{end}}
+  </div>
+  <div class="meter" role="img" aria-label="Terisi {{.RegisteredCount}} dari {{.Capacity}} slot"><span style="width: {{pct .RegisteredCount .Capacity}}%"></span></div>
+  <a href="/sessions/{{.Slug}}" class="btn btn-secondary mt-auto">Lihat detail {{icon "arrow-right"}}</a>
+</article>
+{{end}}
+
+{{define "payment_info"}}
+<div class="grid gap-4 {{if .Site.QRIS}}sm:grid-cols-2{{end}}">
+  {{with .Site.QRIS}}
+  <div class="rounded-xl border border-line p-4 text-center">
+    <p class="mb-2 flex items-center justify-center gap-2 font-semibold">{{icon "qr-code"}} QRIS</p>
+    <img src="{{.Src}}" alt="Kode QRIS pembayaran" width="{{.Width}}" height="{{.Height}}" class="mx-auto aspect-square w-full max-w-60 rounded-lg bg-white object-contain" loading="lazy" decoding="async">
+  </div>
+  {{end}}
+  {{if .Site.BankAccount}}
+  <div class="rounded-xl border border-line p-4">
+    <p class="mb-2 flex items-center gap-2 font-semibold">{{icon "landmark"}} Transfer bank</p>
+    <dl class="space-y-1 text-sm">
+      <div class="flex justify-between gap-2"><dt class="text-muted">Bank</dt><dd class="font-medium">{{.Site.BankName}}</dd></div>
+      <div class="flex justify-between gap-2"><dt class="text-muted">No rekening</dt><dd class="font-mono font-semibold">{{.Site.BankAccount}}</dd></div>
+      <div class="flex justify-between gap-2"><dt class="text-muted">Atas nama</dt><dd class="font-medium">{{.Site.BankHolder}}</dd></div>
+    </dl>
+    <div class="mt-3">{{template "copy_button" dict "Text" .Site.BankAccount "Label" "Salin no rekening"}}</div>
+  </div>
+  {{end}}
+</div>
+{{end}}

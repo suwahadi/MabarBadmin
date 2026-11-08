@@ -1,0 +1,13 @@
+{{define "content"}}
+<div class="mx-auto max-w-3xl px-4 pt-6">
+  {{template "page_head" dict "Title" "Pengumuman"}}
+  {{with .Data.Announcements}}
+  <ul class="space-y-3">{{range .}}
+    <li class="card flex gap-3 p-4">
+      <span class="mt-0.5 {{if eq .Style "important"}}text-bad{{else}}text-accent{{end}}">{{icon "megaphone"}}</span>
+      <div><p class="font-medium">{{.Message}}</p><p class="mt-1 text-sm text-muted">{{date .CreatedAt}}{{with .LinkUrl}} · <a href="{{.}}" class="link">Selengkapnya</a>{{end}}</p></div>
+    </li>{{end}}
+  </ul>
+  {{else}}{{template "empty" dict "Icon" "megaphone" "Text" "Belum ada pengumuman."}}{{end}}
+</div>
+{{end}}

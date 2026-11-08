@@ -1,0 +1,5 @@
+{{define "period_tabs"}}
+<div class="tabs mb-4" role="tablist">
+  {{range .Periods}}<a role="tab" href="{{$.Base}}?period={{.Key}}" class="tab {{if eq .Key $.Period}}is-active{{end}}" {{if eq .Key $.Period}}aria-selected="true"{{end}}>{{.Label}}</a>{{end}}
+</div>
+{{end}}

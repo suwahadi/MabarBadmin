@@ -1,0 +1,13 @@
+{{define "content"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5"><h1 class="text-2xl font-bold">Halaman statis</h1><a href="/admin/pages/new" class="btn btn-primary">{{icon "plus"}} Halaman</a></div>
+<div class="table-wrap card"><table class="table">
+  <thead><tr><th>Judul</th><th>URL</th><th>Status</th><th>Footer</th></tr></thead>
+  <tbody>{{range .Data.Pages}}<tr>
+    <td><a class="font-medium hover:underline" href="/admin/pages/{{.ID}}">{{.Title}}</a></td>
+    <td><a class="font-mono text-sm text-muted hover:underline" href="/{{.Slug}}" target="_blank" rel="noopener">/{{.Slug}}</a></td>
+    <td>{{if .IsPublished}}<span class="badge badge-ok">Terbit</span>{{else}}<span class="badge badge-muted">Draf</span>{{end}}</td>
+    <td>{{if .ShowInFooter}}{{icon "check" "size-4"}}{{end}}</td>
+  </tr>{{else}}<tr><td colspan="4" class="text-muted">Belum ada halaman. Jalankan <code>mabar seed</code>.</td></tr>{{end}}</tbody>
+</table></div>
+<p class="mt-3 text-sm text-muted">FAQ dikelola di <a class="link" href="/admin/faq">menu FAQ</a> dan tampil di halaman /faq.</p>
+{{end}}

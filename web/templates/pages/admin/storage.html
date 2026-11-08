@@ -1,0 +1,12 @@
+{{define "content"}}
+<h1 class="pb-4 text-2xl font-bold">Pengaturan</h1>
+{{template "settings_nav" .Data}}
+<div class="card p-5">
+  <h2 class="section-title">{{icon "image"}} Pemakaian penyimpanan · {{bytes .Data.Total}}</h2>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Preset</th><th class="text-right">Gambar</th><th class="text-right">Ukuran</th></tr></thead>
+    <tbody>{{range .Data.Rows}}<tr><td class="font-mono">{{.Preset}}</td><td class="text-right">{{.Files}}</td><td class="text-right">{{bytes .TotalBytes}}</td></tr>{{else}}<tr><td colspan="3" class="text-muted">Belum ada gambar.</td></tr>{{end}}</tbody>
+  </table></div>
+  <p class="mt-3 text-sm text-muted">File yatim dibersihkan otomatis setiap minggu. Bukti bayar dihapus setelah masa retensi, status pembayaran tetap tersimpan.</p>
+</div>
+{{end}}

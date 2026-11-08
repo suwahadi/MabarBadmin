@@ -1,0 +1,95 @@
+{{define "content"}}
+{{$h := .Data.Home}}
+{{if $h.Slides}}
+<section class="hero" x-data="slider" aria-roledescription="carousel" aria-label="Sorotan">
+  <div class="hero-track">
+    {{range $i, $s := $h.Slides}}
+    <div class="hero-slide" data-slide {{if $i}}hidden{{end}} aria-roledescription="slide" aria-label="{{add $i 1}} dari {{len $h.Slides}}">
+      <picture>
+        {{with $s.Mobile}}<source media="(max-width: 640px)" srcset="{{.SrcSet}}" sizes="100vw" width="{{.Width}}" height="{{.Height}}">{{end}}
+        <img src="{{$s.Desktop.Src}}" srcset="{{$s.Desktop.SrcSet}}" sizes="100vw" width="{{$s.Desktop.Width}}" height="{{$s.Desktop.Height}}" alt="{{$s.Desktop.Alt}}"
+          class="hero-img" {{if eq $i 0}}fetchpriority="high" decoding="sync"{{else}}loading="lazy" decoding="async"{{end}}>
+      </picture>
+      {{if or $s.Title $s.Subtitle}}
+      <div class="hero-caption">
+        <div class="mx-auto max-w-6xl px-4">
+          {{if eq $i 0}}<h1 class="hero-title">{{$s.Title}}</h1>{{else}}<p class="hero-title">{{$s.Title}}</p>{{end}}
+          {{with $s.Subtitle}}<p class="mt-2 max-w-xl text-base text-white/90 sm:text-lg">{{.}}</p>{{end}}
+          {{if and $s.CtaLabel $s.CtaUrl}}<a href="{{$s.CtaUrl}}" class="btn btn-primary mt-4">{{$s.CtaLabel}} {{icon "arrow-right"}}</a>{{end}}
+        </div>
+      </div>
+      {{end}}
+    </div>
+    {{end}}
+  </div>
+  {{if gt (len $h.Slides) 1}}
+  <div class="hero-dots">
+    {{range $i, $s := $h.Slides}}<button type="button" class="hero-dot" data-dot="{{$i}}" @click="go" aria-label="Slide {{add $i 1}}"></button>{{end}}
+  </div>
+  {{end}}
+</section>
+{{else}}
+<section class="hero-text">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+    <p class="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent">{{icon "shuttlecock" "size-4"}} Mabar badminton</p>
+    <h1 class="max-w-2xl text-3xl font-extrabold tracking-tight sm:text-5xl">{{.Site.Name}}</h1>
+    <p class="mt-3 max-w-xl text-lg text-muted">{{.Site.Tagline}}</p>
+  </div>
+</section>
+{{end}}
+
+<div class="mx-auto max-w-6xl space-y-10 px-4 pt-6">
+  <section aria-labelledby="terdekat">
+    <h2 id="terdekat" class="section-title">{{icon "calendar-days"}} Event terdekat</h2>
+    {{with $h.Upcoming}}{{with index . 0}}
+    <article class="card overflow-hidden">
+      <div class="grid gap-5 p-5 md:grid-cols-[auto_1fr_auto] md:items-center">
+        <div class="date-chip date-chip-lg"><span class="text-sm uppercase">{{monthShort .StartsAt}}</span><span class="text-4xl font-extrabold leading-none">{{day .StartsAt}}</span></div>
+        <div class="min-w-0 space-y-2">
+          <h3 class="text-xl font-bold"><a href="/sessions/{{.Slug}}" class="hover:underline">{{.Title}}</a></h3>
+          <p class="flex items-center gap-2 text-muted">{{icon "clock" "size-4"}} {{date .StartsAt}}, {{timerange .StartsAt .EndsAt}}</p>
+          <p class="flex items-center gap-2 text-muted">{{icon "map-pin" "size-4"}} {{.VenueName}}</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="badge badge-ok">{{icon "users" "size-3.5"}}Sisa {{sub (int .Capacity) (int .RegisteredCount)}} dari {{.Capacity}} slot</span>
+            <span class="badge badge-muted">{{icon "wallet" "size-3.5"}}{{rupiah .Price}}</span>
+            {{with .LevelLabel}}<span class="badge badge-muted">{{icon "level-2" "size-3.5"}}{{.}}</span>{{end}}
+          </div>
+          <div class="meter max-w-md"><span style="width: {{pct .RegisteredCount .Capacity}}%"></span></div>
+        </div>
+        <a href="/sessions/{{.Slug}}#daftar" class="btn btn-primary btn-lg">{{icon "racket"}} Ikut Mabar</a>
+      </div>
+    </article>
+    {{end}}{{else}}
+    {{template "empty" dict "Icon" "calendar-days" "Text" "Belum ada jadwal mabar. Pantau grup WA untuk info berikutnya."}}
+    {{end}}
+  </section>
+
+  {{if gt (len $h.Upcoming) 1}}
+  <section aria-labelledby="jadwal">
+    <div class="flex items-center justify-between">
+      <h2 id="jadwal" class="section-title">{{icon "calendar-days"}} Jadwal mendatang</h2>
+      <a href="/sessions" class="link text-sm">Semua jadwal</a>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {{range $i, $s := $h.Upcoming}}{{if $i}}{{template "session_card" $s}}{{end}}{{end}}
+    </div>
+  </section>
+  {{end}}
+
+  {{with $h.Leaderboard}}
+  <section aria-labelledby="peringkat">
+    <div class="flex items-center justify-between">
+      <h2 id="peringkat" class="section-title">{{icon "trophy"}} Paling rajin bulan ini</h2>
+      <a href="/leaderboard" class="link text-sm">Peringkat lengkap</a>
+    </div>
+    <ol class="card divide-y divide-line">
+      {{range .}}<li class="flex items-center gap-3 px-4 py-3">
+        <span class="rank {{medal .Rank}}">{{if medal .Rank}}{{icon "medal" "size-5"}}{{else}}{{.Rank}}{{end}}</span>
+        <span class="flex-1 font-medium">{{.Name}}</span>
+        <span class="text-sm text-muted">{{.Attended}}x hadir</span>
+      </li>{{end}}
+    </ol>
+  </section>
+  {{end}}
+</div>
+{{end}}

@@ -1,0 +1,29 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Pengumuman" "Sub" "Tampil sebagai bar di atas semua halaman publik. Yang terbaru dan aktif yang tampil."}}
+<div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+  <div class="space-y-3">
+    {{range .Data.Announcements}}
+    <details class="card p-4">
+      <summary class="flex cursor-pointer items-center gap-3"><span class="{{if eq .Style "important"}}text-bad{{else}}text-accent{{end}}">{{icon "megaphone"}}</span><span class="flex-1">{{.Message}}</span>{{if .IsActive}}<span class="badge badge-ok">Aktif</span>{{else}}<span class="badge badge-muted">Nonaktif</span>{{end}}</summary>
+      <form method="post" action="/admin/announcements/{{.ID}}" class="mt-4 grid gap-3">{{template "csrf" $.CSRF}}{{template "ann_fields" .}}<button class="btn btn-primary">Simpan</button></form>
+      <form method="post" action="/admin/announcements/{{.ID}}/delete" class="mt-2" data-confirm="Hapus pengumuman ini?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus</button></form>
+    </details>
+    {{else}}{{template "empty" dict "Icon" "megaphone" "Text" "Belum ada pengumuman."}}{{end}}
+  </div>
+  <form method="post" action="/admin/announcements" class="card grid gap-3 self-start p-5">
+    <h2 class="section-title">{{icon "plus"}} Pengumuman baru</h2>
+    {{template "csrf" .CSRF}}{{template "ann_fields" dict "IsActive" true "Style" "info"}}
+    <button class="btn btn-primary">Tambah</button>
+  </form>
+</div>
+{{end}}
+{{define "ann_fields"}}
+<div><label class="label">Teks (maks 160)<textarea class="input mt-1" name="message" maxlength="160" rows="2" required>{{.Message}}</textarea></label></div>
+<div><label class="label">Link (opsional)<input class="input mt-1" name="link_url" value="{{.LinkUrl}}" placeholder="https://... atau /sessions"></label></div>
+<div><label class="label">Gaya<select class="input mt-1" name="style"><option value="info" {{if eq .Style "info"}}selected{{end}}>Info</option><option value="important" {{if eq .Style "important"}}selected{{end}}>Penting</option></select></label></div>
+<div class="grid grid-cols-2 gap-2">
+  <label class="label">Mulai<input class="input mt-1" type="datetime-local" name="starts_at" value="{{inputDT .StartsAt}}"></label>
+  <label class="label">Berakhir<input class="input mt-1" type="datetime-local" name="ends_at" value="{{inputDT .EndsAt}}"></label>
+</div>
+<label class="check"><input type="checkbox" name="is_active" {{if .IsActive}}checked{{end}}> Aktif</label>
+{{end}}

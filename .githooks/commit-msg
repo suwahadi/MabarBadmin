@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+pattern='(co-authored-by:.*(claude|anthropic|chatgpt|openai|copilot|gemini|cursor|codeium|windsurf|devin))|(generated (with|by).*(claude|chatgpt|copilot|gemini|cursor|ai\b))'
+
+if grep -Eiq "$pattern" "$1"; then
+    echo "commit-msg: AI attribution or co-author trailers are not allowed." >&2
+    exit 1
+fi

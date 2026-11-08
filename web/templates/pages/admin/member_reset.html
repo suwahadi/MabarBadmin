@@ -1,0 +1,9 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Password sementara" "Back" "/admin/members"}}
+<div class="card max-w-lg space-y-4 p-5">
+  <p>Kirim password sementara ini ke <strong>{{.Data.Member.Name}}</strong> ({{phone .Data.Member.Phone}}). Member wajib menggantinya setelah masuk.</p>
+  <p class="rounded-xl bg-surface-2 px-4 py-3 font-mono text-2xl tracking-wider">{{.Data.Temp}}</p>
+  {{template "copy_button" dict "Text" .Data.Temp "Label" "Salin password"}}
+  <a class="btn btn-secondary" href="{{waLink .Data.Member.Phone}}" target="_blank" rel="noopener">{{icon "message-circle"}} Buka chat WA</a>
+</div>
+{{end}}

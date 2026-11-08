@@ -1,0 +1,29 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Venue" "Back" "/admin/sessions"}}
+<div class="grid gap-6 lg:grid-cols-[1fr_360px]">
+  <div class="space-y-3">
+    {{range .Data.Venues}}
+    <details class="card p-4">
+      <summary class="flex cursor-pointer items-center gap-3">{{icon "map-pin"}}<span class="flex-1 font-semibold">{{.Name}}</span><span class="text-sm text-muted">{{.Address}}</span></summary>
+      <form method="post" action="/admin/venues/{{.ID}}" class="mt-4 grid gap-3">
+        {{template "csrf" $.CSRF}}
+        {{template "venue_fields" .}}
+        <div class="flex gap-2"><button class="btn btn-primary">Simpan</button></div>
+      </form>
+      <form method="post" action="/admin/venues/{{.ID}}/delete" class="mt-2" data-confirm="Hapus venue ini?">{{template "csrf" $.CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus</button></form>
+    </details>
+    {{else}}{{template "empty" dict "Icon" "map-pin" "Text" "Belum ada venue."}}{{end}}
+  </div>
+  <form method="post" action="/admin/venues" class="card grid gap-3 self-start p-5">
+    <h2 class="section-title">{{icon "plus"}} Venue baru</h2>
+    {{template "csrf" .CSRF}}
+    {{template "venue_fields" dict}}
+    <button class="btn btn-primary">Tambah venue</button>
+  </form>
+</div>
+{{end}}
+{{define "venue_fields"}}
+<div><label class="label">Nama<input class="input mt-1" name="name" value="{{.Name}}" required></label></div>
+<div><label class="label">Alamat<textarea class="input mt-1" name="address" rows="2">{{.Address}}</textarea></label></div>
+<div><label class="label">Link peta<input class="input mt-1" name="maps_url" type="url" value="{{.MapsUrl}}" placeholder="https://maps.app.goo.gl/..."></label></div>
+{{end}}

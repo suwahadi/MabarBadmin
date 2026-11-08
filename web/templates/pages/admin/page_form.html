@@ -1,0 +1,42 @@
+{{define "content"}}
+{{$p := .Data.P}}
+{{template "page_head" dict "Title" (or (and $p.ID $p.Title) "Halaman baru") "Back" "/admin/pages"}}
+<form method="post" action="/admin/pages{{if $p.ID}}/{{$p.ID}}{{end}}" enctype="multipart/form-data" class="grid gap-6 lg:grid-cols-[1fr_320px]">
+  {{template "csrf" .CSRF}}
+  <div class="card grid gap-4 p-5">
+    <div><label class="label" for="title">Judul</label><input id="title" class="input" name="title" value="{{$p.Title}}" required></div>
+    <div><label class="label" for="slug">Slug</label><div class="flex items-center gap-2"><span class="text-muted">/</span><input id="slug" class="input font-mono" name="slug" value="{{$p.Slug}}" pattern="[a-z0-9-]*" placeholder="otomatis dari judul"></div><p class="hint">Tidak boleh: {{.Data.Reserved}}. Slug lama otomatis dialihkan (301).</p></div>
+    <div x-data="toggle">
+      <div class="mb-1 flex items-center justify-between"><label class="label" for="body">Isi (Markdown)</label><button type="button" class="btn btn-sm btn-ghost" @click="toggle">{{icon "eye"}} Pratinjau</button></div>
+      <textarea id="body" class="input font-mono text-sm" name="body_markdown" rows="18" hx-post="/admin/pages/{{or $p.ID 0}}/preview" hx-trigger="input changed delay:600ms, load" hx-target="#preview">{{$p.BodyMarkdown}}</textarea>
+      <div id="preview" class="prose-content mt-3 rounded-xl border border-line p-4" x-show="open" x-cloak></div>
+    </div>
+  </div>
+  <div class="grid content-start gap-4">
+    <div class="card grid gap-3 p-5">
+      <label class="check"><input type="checkbox" name="is_published" {{if $p.IsPublished}}checked{{end}}> Terbit</label>
+      <label class="check"><input type="checkbox" name="show_in_footer" {{if $p.ShowInFooter}}checked{{end}}> Tampil di footer</label>
+      <div><label class="label" for="so">Urutan</label><input id="so" class="input" type="number" name="sort_order" value="{{$p.SortOrder}}"></div>
+      <button class="btn btn-primary">Simpan halaman</button>
+      {{if $p.ID}}<a class="btn btn-ghost" href="/{{$p.Slug}}" target="_blank" rel="noopener">{{icon "external-link"}} Lihat</a>{{end}}
+    </div>
+    <div class="card grid gap-3 p-5">
+      <p class="label">Gambar sampul (opsional)</p>
+      {{with .Data.Cover}}<img src="{{.Src}}" alt="" class="rounded-lg" loading="lazy"><label class="check text-sm"><input type="checkbox" name="remove_cover"> Hapus sampul</label>{{end}}
+      <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" class="input file-input" aria-label="Unggah sampul">
+      <div><label class="label" for="ca">Teks alt sampul</label><input id="ca" class="input" name="cover_alt" value="{{with .Data.Cover}}{{.Alt}}{{end}}"><p class="hint">Wajib bila mengunggah sampul. Rekomendasi 1200 px lebar.</p></div>
+    </div>
+    <details class="card p-5"><summary class="cursor-pointer font-semibold">SEO</summary>
+      <div class="mt-3 grid gap-3">
+        <div><label class="label" for="mt">Judul meta</label><input id="mt" class="input" name="meta_title" value="{{$p.MetaTitle}}"></div>
+        <div><label class="label" for="md">Deskripsi meta</label><textarea id="md" class="input" name="meta_description" rows="3">{{$p.MetaDescription}}</textarea></div>
+        <div><label class="label" for="mk">Keyword</label><input id="mk" class="input" name="meta_keywords" value="{{$p.MetaKeywords}}"></div>
+        <p class="label">Gambar OG (1200 x 630)</p>
+        {{with .Data.OG}}<img src="{{.Src}}" alt="" class="rounded-lg" loading="lazy"><label class="check text-sm"><input type="checkbox" name="remove_og"> Hapus gambar OG</label>{{end}}
+        <input type="file" name="og_image" accept="image/jpeg,image/png,image/webp" class="input file-input" aria-label="Unggah gambar OG">
+      </div>
+    </details>
+  </div>
+</form>
+{{if $p.ID}}<form method="post" action="/admin/pages/{{$p.ID}}/delete" class="mt-4" data-confirm="Hapus halaman ini beserta gambarnya?">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus halaman</button></form>{{end}}
+{{end}}

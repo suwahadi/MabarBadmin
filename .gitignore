@@ -1,0 +1,9 @@
+/dist/
+/data/
+/frontend/node_modules/
+/web/static/css/
+/web/static/js/
+/web/static/manifest.json
+*.test
+/coverage.out
+.env

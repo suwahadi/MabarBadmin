@@ -1,0 +1,83 @@
+{{define "content"}}
+{{$p := .Data.Page}}{{$s := $p.Session}}
+<div class="mx-auto max-w-6xl px-4 pt-6">
+  <nav class="mb-3 text-sm text-muted" aria-label="Breadcrumb"><a href="/sessions" class="hover:underline">Jadwal</a> / <span>{{$s.Title}}</span></nav>
+  <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+    <div class="space-y-6">
+      <section class="card space-y-4 p-5">
+        <div class="flex flex-wrap items-center gap-2">
+          {{if eq $s.Status "cancelled"}}<span class="badge badge-bad">Dibatalkan</span>{{else if eq $s.Status "closed"}}<span class="badge badge-muted">Selesai</span>{{else if $p.Full}}<span class="badge badge-info">{{icon "hourglass" "size-3.5"}}Penuh, buka waiting list</span>{{else}}<span class="badge badge-ok">Sisa {{$p.Remaining}} slot</span>{{end}}
+        </div>
+        <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{$s.Title}}</h1>
+        <dl class="grid gap-3 sm:grid-cols-2">
+          <div class="info-row"><dt>{{icon "calendar-days"}}<span class="sr-only">Tanggal</span></dt><dd>{{date $s.StartsAt}}</dd></div>
+          <div class="info-row"><dt>{{icon "clock"}}<span class="sr-only">Jam</span></dt><dd>{{timerange $s.StartsAt $s.EndsAt}}</dd></div>
+          <div class="info-row"><dt>{{icon "map-pin"}}<span class="sr-only">Venue</span></dt><dd>{{$p.Venue.Name}}{{with $p.Venue.Address}}<span class="block text-sm text-muted">{{.}}</span>{{end}}</dd></div>
+          <div class="info-row"><dt>{{icon "court"}}<span class="sr-only">Lapangan</span></dt><dd>{{$s.CourtCount}} lapangan · kuota {{$s.Capacity}} orang</dd></div>
+          <div class="info-row"><dt>{{icon "wallet"}}<span class="sr-only">HTM</span></dt><dd>{{rupiah $s.Price}}{{if $s.UniqueCodeEnabled}} <span class="text-sm text-muted">+ kode unik</span>{{end}}</dd></div>
+          {{with $s.PointRule}}<div class="info-row"><dt>{{icon "trophy"}}<span class="sr-only">Poin</span></dt><dd>Poin {{.}}</dd></div>{{end}}
+          {{with $s.LevelLabel}}<div class="info-row"><dt>{{icon "level-2"}}<span class="sr-only">Level</span></dt><dd>{{.}}</dd></div>{{end}}
+          <div class="info-row"><dt>{{icon "shuttlecock"}}<span class="sr-only">Shuttlecock</span></dt><dd>Shuttlecock {{if $s.ShuttlecockIncluded}}termasuk HTM{{else}}bayar terpisah{{end}}</dd></div>
+        </dl>
+        <div class="flex flex-wrap gap-2">
+          {{with $p.Venue.MapsUrl}}<a href="{{.}}" class="btn btn-secondary" target="_blank" rel="noopener">{{icon "map-pin"}} Buka peta</a>{{end}}
+          {{if eq $s.Status "published"}}<a href="/sessions/{{$s.Slug}}/rotation" class="btn btn-ghost">{{icon "racket"}} Papan rotasi</a>{{end}}
+        </div>
+        {{with $s.Notes}}<div class="rounded-xl bg-surface-2 p-4 text-sm"><p class="mb-1 font-semibold">Aturan sesi</p><p class="text-muted">{{nl2br .}}</p></div>{{end}}
+      </section>
+
+      {{with .Data.Panel}}{{template "seat_panel" .}}{{end}}
+
+      <section class="card p-5" aria-labelledby="peserta">
+        <h2 id="peserta" class="section-title">{{icon "users"}} Peserta <span class="text-base font-normal text-muted">{{len $p.Registered}}/{{$s.Capacity}} · {{$p.PaidCount}} lunas</span></h2>
+        <ol class="participants">
+          {{range $i, $r := $p.Registered}}<li><span class="num">{{add $i 1}}</span><span class="flex-1 truncate">{{$r.DisplayName}}</span>{{if eq $r.PaymentStatus "paid"}}<span class="badge badge-ok">{{icon "badge-check" "size-3.5"}}Lunas</span>{{else if eq $r.PaymentStatus "pending"}}<span class="badge badge-warn">{{icon "clock-alert" "size-3.5"}}Cek bayar</span>{{end}}</li>{{end}}
+          {{range $i := seq $p.Remaining}}<li class="is-empty"><span class="num">{{add $i (len $p.Registered)}}</span><span class="text-muted">Slot kosong</span></li>{{end}}
+        </ol>
+        {{with $p.Waitlist}}
+        <h3 class="mt-6 flex items-center gap-2 font-semibold">{{icon "hourglass"}} Waiting list</h3>
+        <ol class="participants">
+          {{range $i, $r := .}}<li><span class="num">{{add $i 1}}</span><span class="flex-1 truncate">{{$r.DisplayName}}</span>{{if eq $r.PaymentStatus "paid"}}<span class="badge badge-ok">{{icon "badge-check" "size-3.5"}}Lunas</span>{{end}}</li>{{end}}
+        </ol>
+        {{end}}
+      </section>
+    </div>
+
+    <aside class="space-y-6">
+      {{if not .Data.Panel}}
+      <section id="daftar" class="card space-y-4 p-5 lg:sticky lg:top-6" aria-labelledby="daftar-title">
+        <h2 id="daftar-title" class="section-title">{{icon "racket"}} Ikut mabar</h2>
+        {{if .Data.Open}}
+          {{if $p.Full}}<p class="notice notice-info text-sm">{{icon "hourglass"}}Kuota penuh. Kamu akan masuk waiting list; yang lunas lebih dulu diprioritaskan naik.</p>{{end}}
+          {{if .User}}
+          <form method="post" action="/sessions/{{$s.Slug}}/registrations" class="grid gap-3">
+            {{template "csrf" .CSRF}}
+            <p class="text-sm text-muted">Daftar sebagai <strong class="text-fg">{{.User.Name}}</strong> ({{level .User.Level}}).</p>
+            <button class="btn btn-primary btn-lg">{{icon "racket"}} Ikut Mabar</button>
+          </form>
+          {{else}}
+          <form method="post" action="/sessions/{{$s.Slug}}/registrations" class="grid gap-3">
+            {{template "csrf" .CSRF}}
+            <div><label class="label" for="j-name">Nama</label><input id="j-name" class="input" name="name" required maxlength="60" autocomplete="name"></div>
+            <div><label class="label" for="j-phone">No WA</label><input id="j-phone" class="input" name="phone" type="tel" inputmode="tel" placeholder="0812-3456-7890" required autocomplete="tel"></div>
+            <div><label class="label" for="j-level">Level</label>{{template "level_select" dict "ID" "j-level" "Value" ""}}</div>
+            <button class="btn btn-primary btn-lg">{{icon "racket"}} Ikut Mabar</button>
+            <p class="hint">Sudah member? <a href="/login?next=/sessions/{{$s.Slug}}" class="link">Masuk</a> agar riwayat dan peringkatmu tercatat.</p>
+          </form>
+          {{end}}
+        {{else}}
+          <p class="text-sm text-muted">Pendaftaran untuk sesi ini sudah ditutup.</p>
+        {{end}}
+      </section>
+      {{end}}
+      {{if eq $s.Status "published"}}
+      <section class="card space-y-3 p-5">
+        <h2 class="section-title">{{icon "wallet"}} Info pembayaran</h2>
+        <p class="text-sm text-muted">Daftar dulu untuk mendapat nominal bayar{{if $s.UniqueCodeEnabled}} dengan kode unik{{end}}. Batas refund {{datetime $s.RefundDeadlineAt}}.</p>
+        {{template "payment_info" $}}
+      </section>
+      {{end}}
+    </aside>
+  </div>
+</div>
+{{end}}

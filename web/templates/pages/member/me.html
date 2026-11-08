@@ -1,0 +1,48 @@
+{{define "content"}}
+{{$u := .User}}{{$c := .Data.Counts}}
+<div class="mx-auto max-w-4xl space-y-6 px-4 pt-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div><h1 class="text-2xl font-bold">Halo, {{$u.Name}}</h1><p class="text-sm text-muted">{{phone $u.Phone}} · {{level $u.Level}}</p></div>
+    <form method="post" action="/logout">{{template "csrf" .CSRF}}<button class="btn btn-ghost">{{icon "log-out"}} Keluar</button></form>
+  </div>
+  <div class="grid grid-cols-3 gap-3">
+    <div class="stat"><p class="stat-label">Total hadir</p><p class="stat-value">{{$c.Attended}}</p></div>
+    <div class="stat"><p class="stat-label">Tidak datang</p><p class="stat-value">{{$c.NoShow}}</p></div>
+    <div class="stat"><p class="stat-label">Peringkat bulan ini</p><p class="stat-value">{{if .Data.Rank}}#{{.Data.Rank}}{{else}}–{{end}}</p></div>
+  </div>
+
+  <section class="card p-5">
+    <div class="flex items-center justify-between"><h2 class="section-title">{{icon "calendar-days"}} Sesi saya</h2><a class="link text-sm" href="/me/registrations">Semua riwayat</a></div>
+    {{template "my_regs" (dict "Regs" .Data.Registrations "Limit" 5)}}
+  </section>
+
+  <section class="card p-5">
+    <h2 class="section-title">{{icon "user"}} Profil dan rekening refund</h2>
+    <form method="post" action="/me/profile" class="grid gap-4 sm:grid-cols-2">
+      {{template "csrf" .CSRF}}
+      <div><label class="label" for="name">Nama tampilan</label><input id="name" class="input" name="name" value="{{$u.Name}}" required maxlength="60"></div>
+      <div><label class="label" for="level">Level</label>{{template "level_select" dict "ID" "level" "Value" $u.Level}}</div>
+      <div><label class="label" for="rb">Bank refund</label><input id="rb" class="input" name="refund_bank_name" value="{{$u.RefundBankName}}"></div>
+      <div><label class="label" for="ra">No rekening refund</label><input id="ra" class="input" name="refund_account_number" value="{{$u.RefundAccountNumber}}" inputmode="numeric"></div>
+      <div class="sm:col-span-2"><label class="label" for="rn">Atas nama</label><input id="rn" class="input" name="refund_account_name" value="{{$u.RefundAccountName}}"></div>
+      <div class="flex flex-wrap gap-2 sm:col-span-2"><button class="btn btn-primary">Simpan profil</button><a href="/me/password" class="btn btn-secondary">Ganti password</a></div>
+    </form>
+  </section>
+</div>
+{{end}}
+
+{{define "my_regs"}}
+{{if .Regs}}
+<ul class="mt-3 divide-y divide-line">
+  {{range $i, $r := .Regs}}{{if or (eq $.Limit 0) (lt $i $.Limit)}}
+  <li class="flex flex-wrap items-center gap-3 py-3">
+    <div class="min-w-0 flex-1">
+      <a href="/sessions/{{$r.SessionSlug}}#tiket" class="font-medium hover:underline">{{$r.SessionTitle}}</a>
+      <p class="text-sm text-muted">{{date $r.SessionStartsAt}} · {{$r.VenueName}}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">{{template "status_badge" $r.Status}}{{template "pay_badge" $r.PaymentStatus}}</div>
+  </li>
+  {{end}}{{end}}
+</ul>
+{{else}}<p class="mt-3 text-sm text-muted">Belum ada sesi. <a class="link" href="/sessions">Lihat jadwal</a>.</p>{{end}}
+{{end}}

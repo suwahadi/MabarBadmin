@@ -1,0 +1,16 @@
+[Unit]
+Description=Mabar Badminton
+After=network-online.target postgresql.service
+
+[Service]
+User=mabar
+EnvironmentFile=/etc/mabar/env
+ExecStart=/opt/mabar/current/mabar serve
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/mabar
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

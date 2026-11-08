@@ -1,0 +1,24 @@
+{{define "content"}}
+{{$t := .Data.T}}
+{{template "page_head" dict "Title" (or (and $t.ID $t.Name) "Template baru") "Back" "/admin/templates"}}
+<form method="post" action="/admin/templates{{if $t.ID}}/{{$t.ID}}{{end}}" class="card grid gap-4 p-5 sm:grid-cols-2">
+  {{template "csrf" .CSRF}}
+  <div class="sm:col-span-2"><label class="label" for="name">Nama template</label><input id="name" class="input" name="name" value="{{$t.Name}}" placeholder="Senin malam GBA" required></div>
+  <div><label class="label" for="venue">Venue</label><select id="venue" class="input" name="venue_id" required>{{range .Data.Venues}}<option value="{{.ID}}" {{if eq .ID $t.VenueID}}selected{{end}}>{{.Name}}</option>{{end}}</select>{{if not .Data.Venues}}<p class="hint">Buat <a class="link" href="/admin/venues">venue</a> dulu.</p>{{end}}</div>
+  <div><label class="label" for="weekday">Hari</label><select id="weekday" class="input" name="weekday">{{range .Data.Weekdays}}<option value="{{.}}" {{if eq . $t.Weekday}}selected{{end}}>{{weekday .}}</option>{{end}}</select></div>
+  <div><label class="label" for="st">Jam mulai</label><input id="st" class="input" type="time" name="start_time" value="{{clockText $t.StartTime}}" required></div>
+  <div><label class="label" for="et">Jam selesai</label><input id="et" class="input" type="time" name="end_time" value="{{clockText $t.EndTime}}" required></div>
+  <div><label class="label" for="cc">Jumlah lapangan</label><input id="cc" class="input" type="number" min="1" name="court_count" value="{{$t.CourtCount}}" required></div>
+  <div><label class="label" for="cap">Kuota</label><input id="cap" class="input" type="number" min="1" name="capacity" value="{{$t.Capacity}}" required><p class="hint">Default lapangan x {{.Data.PerCourt}} (sistem gantian).</p></div>
+  <div><label class="label" for="price">HTM (Rp)</label><input id="price" class="input" inputmode="numeric" name="price" value="{{$t.Price}}" required></div>
+  <div><label class="label" for="pr">Aturan poin</label><input id="pr" class="input" name="point_rule" value="{{$t.PointRule}}"></div>
+  <div><label class="label" for="ll">Level</label><input id="ll" class="input" name="level_label" value="{{$t.LevelLabel}}" placeholder="Semua level"></div>
+  <div class="grid content-end gap-2">
+    <label class="check"><input type="checkbox" name="shuttlecock_included" {{if $t.ShuttlecockIncluded}}checked{{end}}> Shuttlecock termasuk HTM</label>
+    <label class="check"><input type="checkbox" name="unique_code_enabled" {{if $t.UniqueCodeEnabled}}checked{{end}}> Pakai kode unik</label>
+  </div>
+  <div class="sm:col-span-2"><label class="label" for="notes">Catatan aturan</label><textarea id="notes" class="input" name="notes" rows="4">{{$t.Notes}}</textarea></div>
+  <div class="flex gap-2 sm:col-span-2"><button class="btn btn-primary">Simpan template</button></div>
+</form>
+{{if $t.ID}}<form method="post" action="/admin/templates/{{$t.ID}}/delete" class="mt-3" data-confirm="Hapus template ini? Sesi yang sudah dibuat tidak terhapus.">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus template</button></form>{{end}}
+{{end}}

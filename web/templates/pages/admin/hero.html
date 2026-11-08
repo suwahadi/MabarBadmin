@@ -1,0 +1,17 @@
+{{define "content"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5"><div><h1 class="text-2xl font-bold">Hero slider</h1><p class="text-sm text-muted">Maksimal 5 slide aktif. Tanpa slide, beranda menampilkan nama aplikasi dan slogan.</p></div><a href="/admin/hero-slides/new" class="btn btn-primary">{{icon "plus"}} Slide</a></div>
+<div class="grid gap-3">
+  {{range .Data.Slides}}
+  <article class="card flex flex-wrap items-center gap-4 p-3">
+    <img src="{{index $.Data.Thumbs .ImageMediaID}}" alt="" class="aspect-video w-40 rounded-lg object-cover" loading="lazy">
+    <div class="min-w-0 flex-1"><p class="font-semibold">{{or .Title "(tanpa judul)"}}</p><p class="text-sm text-muted">{{.Subtitle}}</p>
+      <p class="mt-1">{{if .IsActive}}<span class="badge badge-ok">Aktif</span>{{else}}<span class="badge badge-muted">Nonaktif</span>{{end}}{{with .StartsAt}} <span class="badge badge-muted">mulai {{shortdate .}}</span>{{end}}{{with .EndsAt}} <span class="badge badge-muted">s.d. {{shortdate .}}</span>{{end}}</p></div>
+    <div class="flex gap-1">
+      <form method="post" action="/admin/hero-slides/reorder">{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{.ID}}"><input type="hidden" name="dir" value="up"><button class="icon-btn" aria-label="Naikkan">{{icon "chevron-up"}}</button></form>
+      <form method="post" action="/admin/hero-slides/reorder">{{template "csrf" $.CSRF}}<input type="hidden" name="id" value="{{.ID}}"><input type="hidden" name="dir" value="down"><button class="icon-btn" aria-label="Turunkan">{{icon "chevron-down"}}</button></form>
+      <a href="/admin/hero-slides/{{.ID}}" class="icon-btn" aria-label="Ubah">{{icon "pencil"}}</a>
+    </div>
+  </article>
+  {{else}}{{template "empty" dict "Icon" "image" "Text" "Belum ada slide."}}{{end}}
+</div>
+{{end}}

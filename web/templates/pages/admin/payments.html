@@ -1,0 +1,40 @@
+{{define "content"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5"><h1 class="text-2xl font-bold">Pembayaran</h1><a href="/admin/refunds" class="btn btn-secondary">{{icon "undo-2"}} Antrean refund</a></div>
+<div class="tabs mb-4">
+  <a class="tab {{if eq .Data.Status "pending"}}is-active{{end}}" href="/admin/payments">Menunggu</a>
+  <a class="tab {{if eq .Data.Status "approved"}}is-active{{end}}" href="/admin/payments?status=approved">Diterima</a>
+  <a class="tab {{if eq .Data.Status "rejected"}}is-active{{end}}" href="/admin/payments?status=rejected">Ditolak</a>
+</div>
+{{with .Data.Proofs}}
+<div class="grid gap-4 md:grid-cols-2">
+  {{range .}}
+  <article class="card overflow-hidden" id="proof-{{.ID}}">
+    <div class="grid gap-4 p-4 sm:grid-cols-[140px_1fr]">
+      {{with .MediaID}}<a href="/admin/uploads/{{.}}" target="_blank" rel="noopener" class="block"><img src="/admin/uploads/{{.}}" alt="Bukti bayar" class="aspect-[3/4] w-full rounded-lg bg-surface-2 object-cover" loading="lazy" decoding="async"></a>{{else}}<div class="grid aspect-[3/4] place-items-center rounded-lg bg-surface-2 text-sm text-muted">{{icon "wallet" "size-8"}}</div>{{end}}
+      <div class="space-y-2 text-sm">
+        <p class="text-lg font-semibold">{{.DisplayName}}</p>
+        <p class="text-muted">{{.SessionTitle}} · {{shortdate .SessionStartsAt}}</p>
+        <dl class="grid grid-cols-2 gap-x-3 gap-y-1">
+          <dt class="text-muted">Nominal</dt><dd class="font-mono text-base font-bold">{{rupiah .AmountDue}}</dd>
+          <dt class="text-muted">Kode unik</dt><dd class="font-mono">{{if .UniqueCode}}{{.UniqueCode}}{{else}}–{{end}}</dd>
+          <dt class="text-muted">Metode</dt><dd>{{method .Method}}</dd>
+          <dt class="text-muted">Diunggah</dt><dd>{{shortdate .UploadedAt}} {{clock .UploadedAt}}</dd>
+          <dt class="text-muted">Peserta</dt><dd>{{status .RegistrationStatus}}</dd>
+          <dt class="text-muted">WA</dt><dd><a class="link" href="{{waLink .Phone}}" target="_blank" rel="noopener">{{phone .Phone}}</a></dd>
+        </dl>
+        {{with .ReviewNote}}<p class="text-muted">Catatan: {{.}}</p>{{end}}
+      </div>
+    </div>
+    {{if eq .Status "pending"}}
+    <div class="grid gap-2 border-t border-line bg-surface-2 p-3 sm:grid-cols-2">
+      <form method="post" action="/admin/payment-proofs/{{.ID}}/approve" hx-post="/admin/payment-proofs/{{.ID}}/approve" hx-target="#proof-{{.ID}}" hx-swap="outerHTML">{{template "csrf" $.CSRF}}<button class="btn btn-primary w-full">{{icon "badge-check"}} Konfirmasi</button></form>
+      <form method="post" action="/admin/payment-proofs/{{.ID}}/reject" hx-post="/admin/payment-proofs/{{.ID}}/reject" hx-target="#proof-{{.ID}}" hx-swap="outerHTML" class="flex gap-2">{{template "csrf" $.CSRF}}<input class="input" name="review_note" placeholder="Alasan tolak" aria-label="Alasan tolak" required><button class="btn btn-danger">{{icon "x"}}</button></form>
+    </div>
+    {{end}}
+  </article>
+  {{end}}
+</div>
+{{else}}{{template "empty" dict "Icon" "receipt" "Text" "Tidak ada bukti bayar di daftar ini."}}{{end}}
+{{end}}
+
+{{define "proof-done"}}<article class="card notice {{if .Error}}notice-bad{{else}}notice-ok{{end}} p-4">{{if .Error}}{{icon "triangle-alert"}}{{else}}{{icon "check"}}{{end}}<p>{{.Msg}}</p></article>{{end}}

@@ -1,0 +1,17 @@
+{
+  "name": "mabarbadmin-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run build:css && bun run build:js && bun run hash",
+    "build:css": "tailwindcss -i ./app.css -o ../web/static/css/app.css --minify",
+    "build:js": "bun build ./app.js --outdir ../web/static/js --minify --target browser",
+    "hash": "bun ./hash-assets.js"
+  },
+  "dependencies": {
+    "@alpinejs/csp": "3.14.9",
+    "@tailwindcss/cli": "4.1.13",
+    "htmx.org": "2.0.6",
+    "tailwindcss": "4.1.13"
+  }
+}

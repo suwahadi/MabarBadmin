@@ -1,0 +1,7 @@
+{{define "content"}}
+{{template "page_head" dict "Title" "Teks broadcast" "Back" (printf "/admin/sessions/%d" .Data.Session.ID)}}
+<div class="card space-y-3 p-5">
+  {{template "copy_button" dict "Text" .Data.Text "Label" "Salin teks broadcast"}}
+  <pre class="whitespace-pre-wrap rounded-xl bg-surface-2 p-4 text-sm">{{.Data.Text}}</pre>
+</div>
+{{end}}

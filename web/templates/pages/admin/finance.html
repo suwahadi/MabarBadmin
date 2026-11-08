@@ -1,0 +1,29 @@
+{{define "content"}}
+{{$r := .Data.Report}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5">
+  <h1 class="text-2xl font-bold">Keuangan · {{month $r.Month}}</h1>
+  <div class="flex flex-wrap gap-2">
+    <a class="btn btn-ghost" href="/admin/finance?month={{.Data.Prev}}" aria-label="Bulan sebelumnya">{{icon "chevron-left"}}</a>
+    <form method="get" action="/admin/finance"><input class="input" type="month" name="month" value="{{.Data.Month}}" aria-label="Pilih bulan" data-autosubmit></form>
+    <a class="btn btn-ghost" href="/admin/finance?month={{.Data.Next}}" aria-label="Bulan berikutnya">{{icon "chevron-right"}}</a>
+    <a class="btn btn-secondary" href="/admin/finance/export.csv?month={{.Data.Month}}">{{icon "download"}} CSV</a>
+  </div>
+</div>
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="stat"><p class="stat-label">Pemasukan</p><p class="stat-value text-lg">{{rupiah $r.Income}}</p></div>
+  <div class="stat"><p class="stat-label">Refund</p><p class="stat-value text-lg">{{rupiah $r.Refunds}}</p></div>
+  <div class="stat"><p class="stat-label">Biaya</p><p class="stat-value text-lg">{{rupiah $r.Costs}}</p></div>
+  <div class="stat"><p class="stat-label">Saldo bersih</p><p class="stat-value text-lg {{if lt $r.Net 0}}text-bad{{else}}text-accent{{end}}">{{rupiah $r.Net}}</p></div>
+</div>
+<p class="mt-2 text-xs text-muted">Pemasukan menghitung semua pembayaran yang pernah dikonfirmasi, termasuk yang hangus. Refund dihitung saat masuk antrean.</p>
+{{with $r.Sessions}}
+<div class="table-wrap card mt-6"><table class="table">
+  <thead><tr><th>Tanggal</th><th>Sesi</th><th class="text-right">Hadir</th><th class="text-right">Pemasukan</th><th class="text-right">Refund</th><th class="text-right">Biaya</th><th class="text-right">Bersih</th></tr></thead>
+  <tbody>{{range .}}<tr>
+    <td>{{shortdate .StartsAt}}</td><td><a class="hover:underline" href="/admin/sessions/{{.ID}}">{{.Title}}</a></td>
+    <td class="text-right">{{.Attended}}</td><td class="text-right">{{rupiah .Income}}</td><td class="text-right">{{rupiah .Refunds}}</td><td class="text-right">{{rupiah .Costs}}</td>
+    <td class="text-right font-semibold {{if lt .Net 0}}text-bad{{end}}">{{rupiah .Net}}</td>
+  </tr>{{end}}</tbody>
+</table></div>
+{{else}}<div class="mt-6">{{template "empty" dict "Icon" "wallet" "Text" "Belum ada sesi di bulan ini."}}</div>{{end}}
+{{end}}

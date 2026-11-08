@@ -1,0 +1,12 @@
+{{define "board_table"}}
+{{if .}}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>#</th><th>Nama</th><th class="text-right">Hadir</th><th class="text-right">No-show</th><th class="text-right">Kehadiran</th><th>Terakhir main</th></tr></thead>
+  <tbody>{{range .}}<tr>
+    <td><span class="rank {{medal .Rank}}">{{if medal .Rank}}{{icon "medal" "size-5"}}{{else}}{{.Rank}}{{end}}</span></td>
+    <td class="font-medium">{{.Name}}</td><td class="text-right">{{.Attended}}</td><td class="text-right">{{.NoShow}}</td><td class="text-right">{{.Percent}}%</td>
+    <td>{{if isZero .LastPlayed}}–{{else}}{{shortdate .LastPlayed}}{{end}}</td>
+  </tr>{{end}}</tbody>
+</table></div>
+{{else}}<p class="text-sm text-muted">Belum ada data kehadiran di periode ini.</p>{{end}}
+{{end}}

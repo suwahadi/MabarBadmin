@@ -1,0 +1,20 @@
+{{define "content"}}
+<div class="flex flex-wrap items-end justify-between gap-3 pb-5">
+  <h1 class="text-2xl font-bold">Sesi</h1>
+  <div class="flex flex-wrap gap-2"><a href="/admin/venues" class="btn btn-ghost">{{icon "map-pin"}} Venue</a><a href="/admin/templates" class="btn btn-secondary">{{icon "repeat"}} Dari template</a><a href="/admin/sessions/new" class="btn btn-primary">{{icon "plus"}} Sesi baru</a></div>
+</div>
+<div class="tabs mb-4">
+  {{range (list "" "draft" "published" "closed" "cancelled")}}<a class="tab {{if eq . $.Data.Status}}is-active{{end}}" href="/admin/sessions{{if .}}?status={{.}}{{end}}">{{if .}}{{sessStatus .}}{{else}}Semua{{end}}</a>{{end}}
+</div>
+{{with .Data.Sessions}}
+<div class="table-wrap card"><table class="table">
+  <thead><tr><th>Tanggal</th><th>Sesi</th><th>Status</th><th class="text-right">Slot</th><th class="text-right">Lunas</th><th class="text-right">Antre</th></tr></thead>
+  <tbody>{{range .}}<tr>
+    <td class="whitespace-nowrap">{{shortdate .StartsAt}} {{clock .StartsAt}}</td>
+    <td><a class="font-medium hover:underline" href="/admin/sessions/{{.ID}}">{{.Title}}</a><span class="block text-xs text-muted">{{.VenueName}}</span></td>
+    <td><span class="badge badge-muted">{{sessStatus .Status}}</span></td>
+    <td class="text-right">{{.RegisteredCount}}/{{.Capacity}}</td><td class="text-right">{{.PaidCount}}</td><td class="text-right">{{.WaitlistedCount}}</td>
+  </tr>{{end}}</tbody>
+</table></div>
+{{else}}{{template "empty" dict "Icon" "calendar-days" "Text" "Belum ada sesi."}}{{end}}
+{{end}}

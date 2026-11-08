@@ -1,0 +1,90 @@
+{{define "public_shell"}}
+{{with .Announcement}}
+<div class="announce announce-{{.Style}}">
+  <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2">
+    {{icon "megaphone" "size-4"}}
+    <p class="flex-1 text-sm">{{if .LinkUrl}}<a href="{{.LinkUrl}}" class="font-semibold underline underline-offset-2">{{.Message}}</a>{{else}}{{.Message}}{{end}}</p>
+    <button type="button" class="icon-btn" data-dismiss-announcement="{{.ID}}" aria-label="Tutup pengumuman">{{icon "x" "size-4"}}</button>
+  </div>
+</div>
+{{end}}
+<header class="site-header" x-data="toggle">
+  <div class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
+    <a href="/" class="flex items-center gap-2 font-bold text-lg" aria-label="{{.Site.Name}} beranda">
+      {{if .Site.LogoLight}}
+        <img src="{{.Site.LogoLight.Src}}" alt="{{.Site.Name}}" width="{{.Site.LogoLight.Width}}" height="{{.Site.LogoLight.Height}}" class="h-9 w-auto {{if .Site.LogoDark}}dark:hidden{{end}}">
+        {{with .Site.LogoDark}}<img src="{{.Src}}" alt="{{$.Site.Name}}" width="{{.Width}}" height="{{.Height}}" class="hidden h-9 w-auto dark:block">{{end}}
+      {{else}}
+        <span class="grid size-9 place-items-center rounded-xl bg-accent text-accent-fg">{{icon "shuttlecock" "size-5"}}</span>
+        <span>{{.Site.Name}}</span>
+      {{end}}
+    </a>
+    <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Navigasi utama">
+      <a href="/sessions" class="nav-link {{if hasPrefix .Path "/sessions"}}is-active{{end}}">Jadwal</a>
+      {{if .Site.Leaderboard}}<a href="/leaderboard" class="nav-link {{if eq .Path "/leaderboard"}}is-active{{end}}">Peringkat</a>{{end}}
+      <a href="/faq" class="nav-link {{if eq .Path "/faq"}}is-active{{end}}">FAQ</a>
+      {{if .User}}
+        {{if eq .User.Role "admin"}}<a href="/admin" class="nav-link">Admin</a>{{end}}
+        <a href="/me" class="btn btn-secondary ml-2">{{icon "user"}}<span>{{.User.Name}}</span></a>
+      {{else}}
+        <a href="/login" class="nav-link">Masuk</a>
+        <a href="/register" class="btn btn-primary ml-1">Daftar</a>
+      {{end}}
+    </nav>
+    <button type="button" class="icon-btn ml-auto md:hidden" @click="toggle" :aria-expanded="open" aria-controls="menu-mobile" aria-label="Buka menu">{{icon "menu"}}</button>
+  </div>
+  <nav id="menu-mobile" class="border-t border-line bg-surface md:hidden" x-show="open" x-cloak aria-label="Navigasi mobile">
+    <div class="mx-auto grid max-w-6xl gap-1 px-4 py-3">
+      <a href="/sessions" class="nav-link">{{icon "calendar-days"}} Jadwal</a>
+      {{if .Site.Leaderboard}}<a href="/leaderboard" class="nav-link">{{icon "trophy"}} Peringkat</a>{{end}}
+      <a href="/faq" class="nav-link">{{icon "circle-help"}} FAQ</a>
+      <a href="/announcements" class="nav-link">{{icon "megaphone"}} Pengumuman</a>
+      {{if .User}}
+        {{if eq .User.Role "admin"}}<a href="/admin" class="nav-link">{{icon "layout-dashboard"}} Admin</a>{{end}}
+        <a href="/me" class="nav-link">{{icon "user"}} Akun saya</a>
+        <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button class="nav-link w-full">{{icon "log-out"}} Keluar</button></form>
+      {{else}}
+        <a href="/login" class="nav-link">{{icon "log-in"}} Masuk</a>
+        <a href="/register" class="nav-link">{{icon "user-plus"}} Daftar member</a>
+      {{end}}
+    </div>
+  </nav>
+</header>
+<main id="konten" class="pb-16">
+  <div class="mx-auto max-w-6xl px-4">{{template "flash" .}}</div>
+  {{template "content" .}}
+</main>
+{{template "footer" .}}
+{{end}}
+
+{{define "footer"}}
+<footer class="border-t border-line bg-surface">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-3">
+    <div class="space-y-3">
+      <p class="flex items-center gap-2 text-lg font-bold">
+        {{if .Site.LogoLight}}<img src="{{.Site.LogoLight.Src}}" alt="" width="{{.Site.LogoLight.Width}}" height="{{.Site.LogoLight.Height}}" class="h-8 w-auto" loading="lazy" decoding="async">{{else}}<span class="grid size-8 place-items-center rounded-lg bg-accent text-accent-fg">{{icon "shuttlecock" "size-4"}}</span>{{end}}
+        {{.Site.Name}}
+      </p>
+      <p class="text-sm text-muted">{{.Site.Tagline}}</p>
+      {{with .Site.Social}}<ul class="flex flex-wrap gap-2" aria-label="Media sosial">
+        {{range .}}<li><a href="{{.URL}}" class="icon-btn border border-line" rel="noopener" target="_blank" aria-label="{{.Name}}">{{icon .Icon}}</a></li>{{end}}
+      </ul>{{end}}
+    </div>
+    <div class="space-y-2 text-sm">
+      <h2 class="font-semibold">Kontak</h2>
+      {{with .Site.ContactWA}}<p><a class="link-muted" href="{{waLink .}}" rel="noopener" target="_blank">{{icon "message-circle" "size-4"}} {{phone .}}</a></p>{{end}}
+      {{with .Site.ContactEmail}}<p><a class="link-muted" href="mailto:{{.}}">{{icon "mail" "size-4"}} {{.}}</a></p>{{end}}
+      {{with .Site.Address}}<p class="flex gap-2 text-muted">{{icon "map-pin" "size-4 mt-0.5"}}<span>{{nl2br .}}</span></p>{{end}}
+    </div>
+    <div class="space-y-2 text-sm">
+      <h2 class="font-semibold">Informasi</h2>
+      <ul class="space-y-1">
+        <li><a class="link-muted" href="/sessions">Jadwal mabar</a></li>
+        <li><a class="link-muted" href="/announcements">Pengumuman</a></li>
+        {{range .Site.FooterPages}}<li><a class="link-muted" href="/{{.Slug}}">{{.Title}}</a></li>{{end}}
+      </ul>
+    </div>
+  </div>
+  <p class="border-t border-line py-4 text-center text-xs text-muted">© {{(now).Year}} {{.Site.Name}}</p>
+</footer>
+{{end}}
