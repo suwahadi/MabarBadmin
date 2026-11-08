@@ -17,3 +17,8 @@ ORDER BY rr.round_number, m.court_number;
 -- name: DeleteLastRotationRound :exec
 DELETE FROM rotation_rounds
 WHERE id = (SELECT rr.id FROM rotation_rounds rr WHERE rr.session_id = $1 ORDER BY rr.round_number DESC LIMIT 1);
+
+-- name: UpdateRotationMatchPlayers :exec
+UPDATE rotation_matches
+SET team_a_player1_id = $2, team_a_player2_id = $3, team_b_player1_id = $4, team_b_player2_id = $5
+WHERE id = $1;

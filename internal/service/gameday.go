@@ -48,24 +48,9 @@ func (s *Service) NextRotationRound(ctx context.Context, a Actor, sessionID int6
 		if sess.Status != domain.SessionPublished {
 			return userErr("Rotasi hanya untuk sesi yang sedang berjalan.")
 		}
-		regs, err := q.ListSessionRegistrations(ctx, sessionID)
+		pool, err := rotationPool(ctx, q, sessionID)
 		if err != nil {
 			return err
-		}
-		var present, holders []domain.Player
-		for _, r := range regs {
-			p := domain.Player{ID: r.ID, Level: r.Level}
-			switch r.Status {
-			case domain.StatusAttended:
-				present = append(present, p)
-				holders = append(holders, p)
-			case domain.StatusRegistered:
-				holders = append(holders, p)
-			}
-		}
-		pool := present
-		if len(pool) == 0 {
-			pool = holders
 		}
 		if len(pool) < 4 {
 			return userErr("Butuh minimal 4 pemain hadir untuk membuat rotasi.")
@@ -105,5 +90,91 @@ func (s *Service) UndoRotationRound(ctx context.Context, a Actor, sessionID int6
 			return err
 		}
 		return logActivity(ctx, q, a, "session", sessionID, "rotation_round_removed", nil)
+	})
+}
+
+// rotationPool returns the players eligible for rotation: those checked in as present, or every
+// slot holder while nobody has been checked in yet.
+func rotationPool(ctx context.Context, q *sqlc.Queries, sessionID int64) ([]domain.Player, error) {
+	regs, err := q.ListSessionRegistrations(ctx, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	var present, holders []domain.Player
+	for _, r := range regs {
+		p := domain.Player{ID: r.ID, Level: r.Level}
+		switch r.Status {
+		case domain.StatusAttended:
+			present = append(present, p)
+			holders = append(holders, p)
+		case domain.StatusRegistered:
+			holders = append(holders, p)
+		}
+	}
+	if len(present) > 0 {
+		return present, nil
+	}
+	return holders, nil
+}
+
+// SwapRotationPlayers lets the admin correct the latest round by hand: two players on court
+// trade places, or a waiting player takes a court spot. Earlier rounds stay as played because
+// they drive the "fewest games, longest wait" priority of the next round.
+func (s *Service) SwapRotationPlayers(ctx context.Context, a Actor, sessionID, playerA, playerB int64) error {
+	return s.tx(ctx, func(q *sqlc.Queries) error {
+		sess, err := q.GetSessionForUpdate(ctx, sessionID)
+		if err != nil {
+			return notFound(err)
+		}
+		if sess.Status != domain.SessionPublished {
+			return userErr("Rotasi hanya untuk sesi yang sedang berjalan.")
+		}
+		rows, err := q.ListRotationMatches(ctx, sessionID)
+		if err != nil {
+			return err
+		}
+		if len(rows) == 0 {
+			return userErr("Belum ada ronde untuk diubah.")
+		}
+		last := rows[len(rows)-1].RoundNumber
+		var ids []int64
+		var matches []domain.Match
+		playing := map[int64]bool{}
+		for _, m := range rows {
+			if m.RoundNumber != last {
+				continue
+			}
+			ids = append(ids, m.ID)
+			dm := domain.Match{Court: int(m.CourtNumber), TeamA: [2]int64{m.TeamAPlayer1ID, m.TeamAPlayer2ID}, TeamB: [2]int64{m.TeamBPlayer1ID, m.TeamBPlayer2ID}}
+			for _, id := range dm.Players() {
+				playing[id] = true
+			}
+			matches = append(matches, dm)
+		}
+		pool, err := rotationPool(ctx, q, sessionID)
+		if err != nil {
+			return err
+		}
+		var waiting []int64
+		for _, p := range pool {
+			if !playing[p.ID] {
+				waiting = append(waiting, p.ID)
+			}
+		}
+		updated, err := domain.SwapInRound(matches, waiting, playerA, playerB)
+		if err != nil {
+			return userErr(capitalize(err.Error()) + ".")
+		}
+		for i, m := range updated {
+			if m == matches[i] {
+				continue
+			}
+			if err := q.UpdateRotationMatchPlayers(ctx, sqlc.UpdateRotationMatchPlayersParams{
+				ID: ids[i], TeamAPlayer1ID: m.TeamA[0], TeamAPlayer2ID: m.TeamA[1], TeamBPlayer1ID: m.TeamB[0], TeamBPlayer2ID: m.TeamB[1],
+			}); err != nil {
+				return err
+			}
+		}
+		return logActivity(ctx, q, a, "session", sessionID, "rotation_swapped", map[string]any{"round": last, "player_a": playerA, "player_b": playerB})
 	})
 }

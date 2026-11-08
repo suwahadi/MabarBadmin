@@ -604,3 +604,38 @@ func (a *App) adminRotationUndo(w http.ResponseWriter, r *http.Request) {
 	}
 	a.done(w, r, back, "Ronde terakhir dihapus.")
 }
+
+// adminRotationSwap swaps two players in the latest round; HTMX gets the refreshed rotation panel.
+func (a *App) adminRotationSwap(w http.ResponseWriter, r *http.Request) {
+	id := pathID(r)
+	back := fmt.Sprintf("/admin/sessions/%d/game-day#rotasi", id)
+	err := a.Svc.SwapRotationPlayers(r.Context(), a.adminActor(r), id, formInt64(r, "player_a"), formInt64(r, "player_b"))
+	if !isHTMX(r) {
+		if err != nil {
+			a.fail(w, r, back, err)
+			return
+		}
+		a.done(w, r, back, "Posisi pemain ditukar.")
+		return
+	}
+	msg, isErr := "Posisi pemain ditukar.", false
+	if err != nil {
+		m, ok := service.IsUserError(err)
+		if !ok {
+			a.fail(w, r, back, err)
+			return
+		}
+		msg, isErr = m, true
+	}
+	sess, err := a.Q.GetSession(r.Context(), id)
+	if err != nil {
+		a.notFound(w, r)
+		return
+	}
+	board, err := a.rotationData(r, sess)
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	a.renderBlock(w, r, "admin/game_day", "rotation-panel", map[string]any{"S": sess, "Board": board, "CSRF": a.csrf(r), "Msg": msg, "Err": isErr})
+}

@@ -27,7 +27,7 @@
     </article>
     {{end}}
   </div>
-  {{with .Sitting}}<div class="card p-4"><p class="mb-2 flex items-center gap-2 font-semibold">{{icon "hourglass"}} Duduk dulu</p><p class="text-muted">{{range $i, $r := .}}{{if $i}}, {{end}}{{$r.DisplayName}}{{end}}</p></div>{{end}}
+  {{with .Sitting}}<div class="card p-4"><p class="mb-2 flex items-center gap-2 font-semibold">{{icon "hourglass"}} Menunggu giliran</p><p class="text-muted">{{range $i, $r := .}}{{if $i}}, {{end}}{{$r.DisplayName}}{{end}}</p></div>{{end}}
   {{else}}
   {{template "empty" dict "Icon" "racket" "Text" "Rotasi belum dibuat. Halaman ini diperbarui otomatis."}}
   {{end}}

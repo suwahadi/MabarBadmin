@@ -585,3 +585,53 @@ func TestRollbackKeepsOldFiles(t *testing.T) {
 		}
 	}
 }
+
+func TestSwapRotationPlayers(t *testing.T) {
+	s := newTestService(t)
+	ctx := context.Background()
+	sess := makeSession(t, s, 10, time.Hour)
+	var ids []int64
+	for i := 1; i <= 5; i++ {
+		r := join(t, s, sess.ID, i)
+		if _, err := s.SetAttendance(ctx, admin(), r.ID, domain.StatusAttended); err != nil {
+			t.Fatal(err)
+		}
+		ids = append(ids, r.ID)
+	}
+	if err := s.NextRotationRound(ctx, admin(), sess.ID, 1); err != nil {
+		t.Fatal(err)
+	}
+	rounds, _ := Rotation(ctx, s.Q, sess.ID)
+	m := rounds[0].Matches[0]
+	onCourt := map[int64]bool{}
+	for _, id := range m.Players() {
+		onCourt[id] = true
+	}
+	var waiting int64
+	for _, id := range ids {
+		if !onCourt[id] {
+			waiting = id
+		}
+	}
+	if err := s.SwapRotationPlayers(ctx, admin(), sess.ID, waiting, m.TeamB[1]); err != nil {
+		t.Fatal(err)
+	}
+	rounds, _ = Rotation(ctx, s.Q, sess.ID)
+	if rounds[0].Matches[0].TeamB[1] != waiting {
+		t.Fatalf("waiting player should take the court spot, got %+v", rounds[0].Matches[0])
+	}
+	if err := s.SwapRotationPlayers(ctx, admin(), sess.ID, m.TeamA[0], m.TeamA[0]); err == nil {
+		t.Fatal("swapping a player with itself must fail")
+	}
+	if err := s.NextRotationRound(ctx, admin(), sess.ID, 1); err != nil {
+		t.Fatal(err)
+	}
+	next, _ := Rotation(ctx, s.Q, sess.ID)
+	inNext := map[int64]bool{}
+	for _, id := range next[1].Matches[0].Players() {
+		inNext[id] = true
+	}
+	if !inNext[m.TeamB[1]] {
+		t.Fatal("the player swapped out waited, so they must play the next round")
+	}
+}

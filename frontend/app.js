@@ -51,6 +51,95 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+// Rotation editing on game day: tap one player then another to swap them, or drag a name onto
+// another name with a mouse. Native drag and drop does not fire on touch screens, which is why
+// tapping is the primary interaction on phones.
+const swap = { selected: null };
+
+function swapPanel(el) { return el.closest("#rotasi"); }
+
+function clearSwapSelection() {
+  if (swap.selected) {
+    swap.selected.classList.remove("is-selected");
+    swap.selected.setAttribute("aria-pressed", "false");
+  }
+  swap.selected = null;
+}
+
+function announce(panel, text) {
+  const status = panel && panel.querySelector("[data-swap-status]");
+  if (status) status.textContent = text;
+}
+
+function submitSwap(a, b) {
+  const panel = swapPanel(a);
+  const form = panel && panel.querySelector("#swap-form");
+  if (!form || a === b) return;
+  form.elements.player_a.value = a.dataset.swapPlayer;
+  form.elements.player_b.value = b.dataset.swapPlayer;
+  panel.setAttribute("data-swapping", "");
+  announce(panel, `Menukar ${a.dataset.name} dengan ${b.dataset.name}…`);
+  swap.selected = null;
+  form.requestSubmit();
+}
+
+document.addEventListener("click", (event) => {
+  const chip = event.target.closest("[data-swap-player]");
+  if (!chip) return;
+  if (!swap.selected) {
+    swap.selected = chip;
+    chip.classList.add("is-selected");
+    chip.setAttribute("aria-pressed", "true");
+    announce(swapPanel(chip), `${chip.dataset.name} dipilih. Ketuk pemain lain untuk menukar.`);
+  } else if (swap.selected === chip) {
+    clearSwapSelection();
+    announce(swapPanel(chip), "Pilihan dibatalkan.");
+  } else {
+    submitSwap(swap.selected, chip);
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && swap.selected) clearSwapSelection();
+});
+
+document.addEventListener("dragstart", (event) => {
+  const chip = event.target.closest && event.target.closest("[data-swap-player]");
+  if (!chip) return;
+  clearSwapSelection();
+  swap.dragging = chip;
+  chip.classList.add("is-dragging");
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", chip.dataset.swapPlayer);
+});
+
+document.addEventListener("dragend", () => {
+  if (swap.dragging) swap.dragging.classList.remove("is-dragging");
+  document.querySelectorAll(".swap-chip.is-target").forEach((el) => el.classList.remove("is-target"));
+  swap.dragging = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  const chip = event.target.closest && event.target.closest("[data-swap-player]");
+  if (!chip || !swap.dragging || chip === swap.dragging) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+  chip.classList.add("is-target");
+});
+
+document.addEventListener("dragleave", (event) => {
+  const chip = event.target.closest && event.target.closest("[data-swap-player]");
+  if (chip && !chip.contains(event.relatedTarget)) chip.classList.remove("is-target");
+});
+
+document.addEventListener("drop", (event) => {
+  const chip = event.target.closest && event.target.closest("[data-swap-player]");
+  if (!chip || !swap.dragging) return;
+  event.preventDefault();
+  chip.classList.remove("is-target");
+  submitSwap(swap.dragging, chip);
+});
+
 // Hero slider: the first slide is server-rendered as the LCP image; rotation starts only after
 // the page has loaded, stops when touched, and never runs for reduced-motion users.
 Alpine.data("slider", () => ({

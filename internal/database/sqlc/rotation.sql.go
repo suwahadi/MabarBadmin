@@ -141,3 +141,28 @@ func (q *Queries) ListRotationRounds(ctx context.Context, sessionID int64) ([]Ro
 	}
 	return items, nil
 }
+
+const updateRotationMatchPlayers = `-- name: UpdateRotationMatchPlayers :exec
+UPDATE rotation_matches
+SET team_a_player1_id = $2, team_a_player2_id = $3, team_b_player1_id = $4, team_b_player2_id = $5
+WHERE id = $1
+`
+
+type UpdateRotationMatchPlayersParams struct {
+	ID             int64
+	TeamAPlayer1ID int64
+	TeamAPlayer2ID int64
+	TeamBPlayer1ID int64
+	TeamBPlayer2ID int64
+}
+
+func (q *Queries) UpdateRotationMatchPlayers(ctx context.Context, arg UpdateRotationMatchPlayersParams) error {
+	_, err := q.db.Exec(ctx, updateRotationMatchPlayers,
+		arg.ID,
+		arg.TeamAPlayer1ID,
+		arg.TeamAPlayer2ID,
+		arg.TeamBPlayer1ID,
+		arg.TeamBPlayer2ID,
+	)
+	return err
+}

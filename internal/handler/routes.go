@@ -75,6 +75,7 @@ func (a *App) routes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/sessions/{id}/game-day", admin(a.adminGameDay))
 	mux.Handle("POST /admin/sessions/{id}/rotation-rounds", admin(a.adminRotationNext))
 	mux.Handle("POST /admin/sessions/{id}/rotation-rounds/undo", admin(a.adminRotationUndo))
+	mux.Handle("POST /admin/sessions/{id}/rotation-rounds/swap", admin(a.adminRotationSwap))
 
 	mux.Handle("POST /admin/registrations/{id}/move", admin(a.adminRegMove))
 	mux.Handle("POST /admin/registrations/{id}/attendance", admin(a.adminRegAttendance))

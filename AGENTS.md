@@ -49,7 +49,8 @@ web/
   static/                  # hasil build (tidak di-commit kecuali icons.svg)
   embed.go
 frontend/                  # sumber Tailwind dan JS, dibuild Bun
-deploy/                    # contoh systemd, Caddyfile, skrip backup
+deploy/                    # unit systemd (app dan backup), Caddyfile, skrip backup
+docs/                      # panduan deploy
 .githooks/commit-msg
 scripts/check-commit-messages.sh
 Makefile
@@ -65,6 +66,8 @@ make sqlc        # sqlc generate
 make assets      # build CSS dan JS lewat Bun
 make release     # build lengkap ke dist/mabar
 ```
+
+Panduan deploy ke VPS ada di [docs/DEPLOY.md](docs/DEPLOY.md).
 
 Binary: `mabar serve`, `mabar migrate up|down|status`, `mabar seed [--demo]`, `mabar create-admin`.
 
@@ -133,7 +136,7 @@ Keputusan ini melengkapi PRD untuk hal yang belum diatur secara eksplisit.
 | Oper slot | Sistem membuat link tiket baru untuk pengganti dan menampilkannya ke peserta lama untuk dikirim lewat WA. Jika no WA pengganti adalah member, slot juga muncul di akunnya. No WA yang sudah terdaftar di sesi yang sama ditolak |
 | Tutup sesi | Manual oleh admin setelah mengisi biaya. Scheduler menutup otomatis sesi yang belum ditutup 24 jam setelah `ends_at` |
 | Kode unik | Acak 1 sampai 499, unik per sesi, ditetapkan saat mendaftar sehingga `amount_due` tetap |
-| Rotasi | Lapangan diisi 4 pemain per lapangan sesuai prioritas. Sisa pemain duduk dan mendapat prioritas di ronde berikutnya. Lapangan dibiarkan kosong bila pemain kurang dari 4 |
+| Rotasi | Lapangan diisi 4 pemain per lapangan sesuai prioritas. Sisa pemain menunggu dan mendapat prioritas di ronde berikutnya. Lapangan dibiarkan kosong bila pemain kurang dari 4. Admin bisa mengoreksi ronde terakhir dengan ketuk untuk tukar atau drag and drop (antarpemain di lapangan, atau pemain menunggu dengan pemain di lapangan); ronde sebelumnya tidak bisa diubah karena menjadi dasar prioritas |
 | `create-admin` | Prompt interaktif (nama, no WA, password tersembunyi). Tersedia flag `--name`, `--phone`, dan password dari stdin untuk skrip |
 | Teks broadcast | Format default disusun sesuai PRD (header, detail sesi, list bernomor dengan emoji uang untuk yang lunas, info bayar, aturan, sosial media, link sesi), bisa diubah admin di Pengaturan > Broadcast |
 | Kode sqlc | Hasil generate di-commit |
