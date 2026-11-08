@@ -18,7 +18,7 @@
 </section>
 
 <section class="mt-6">
-  <div class="flex items-center justify-between"><h2 class="section-title">{{icon "calendar-days"}} Sesi terdekat</h2><a href="/admin/templates" class="btn btn-primary">{{icon "plus"}} Buat sesi</a></div>
+  <div class="mb-3 flex flex-wrap items-center justify-between gap-3"><h2 class="section-title mb-0">{{icon "calendar-days"}} Sesi terdekat</h2><a href="/admin/templates" class="btn btn-primary">{{icon "plus"}} Buat sesi</a></div>
   {{with $d.Upcoming}}
   <div class="grid gap-3 md:grid-cols-3">
     {{range .}}

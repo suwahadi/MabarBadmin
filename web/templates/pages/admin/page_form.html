@@ -5,7 +5,7 @@
   {{template "csrf" .CSRF}}
   <div class="card grid gap-4 p-5">
     <div><label class="label" for="title">Judul</label><input id="title" class="input" name="title" value="{{$p.Title}}" required></div>
-    <div><label class="label" for="slug">Slug</label><div class="flex items-center gap-2"><span class="text-muted">/</span><input id="slug" class="input font-mono" name="slug" value="{{$p.Slug}}" pattern="[a-z0-9-]*" placeholder="otomatis dari judul"></div><p class="hint">Tidak boleh: {{.Data.Reserved}}. Slug lama otomatis dialihkan (301).</p></div>
+    <div><label class="label" for="slug">Slug</label><div class="flex items-center gap-2"><span class="text-muted">/</span><input id="slug" class="input font-mono" name="slug" value="{{$p.Slug}}" placeholder="otomatis dari judul" data-slug-check data-reserved="{{.Data.Reserved}}" aria-describedby="slug-error" {{if .Data.IsDefault}}readonly{{end}}></div>{{if .Data.IsDefault}}<p class="hint">Slug halaman bawaan tidak bisa diubah.</p>{{end}}<p id="slug-error" class="field-error" role="alert" hidden></p></div>
     <div x-data="toggle">
       <div class="mb-1 flex items-center justify-between"><label class="label" for="body">Isi (Markdown)</label><button type="button" class="btn btn-sm btn-ghost" @click="toggle">{{icon "eye"}} Pratinjau</button></div>
       <textarea id="body" class="input font-mono text-sm" name="body_markdown" rows="18" hx-post="/admin/pages/{{or $p.ID 0}}/preview" hx-trigger="input changed delay:600ms, load" hx-target="#preview">{{$p.BodyMarkdown}}</textarea>
@@ -38,5 +38,5 @@
     </details>
   </div>
 </form>
-{{if $p.ID}}<form method="post" action="/admin/pages/{{$p.ID}}/delete" class="mt-4" data-confirm="Hapus halaman ini beserta gambarnya?" data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus halaman</button></form>{{end}}
+{{if and $p.ID (not .Data.IsDefault)}}<form method="post" action="/admin/pages/{{$p.ID}}/delete" class="mt-4" data-confirm="Hapus halaman ini beserta gambarnya?" data-confirm-tone="danger">{{template "csrf" .CSRF}}<button class="btn btn-ghost text-bad">{{icon "trash-2"}} Hapus halaman</button></form>{{end}}
 {{end}}

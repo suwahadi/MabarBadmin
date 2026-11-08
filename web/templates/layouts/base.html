@@ -13,7 +13,7 @@
 <a href="#konten" class="skip-link">Langsung ke konten</a>
 {{if .Admin}}{{template "admin_shell" .}}{{else}}{{template "public_shell" .}}{{end}}
 <dialog id="confirm-toast" class="confirm-toast" aria-labelledby="confirm-text">
-  <p id="confirm-text" class="flex gap-2 font-medium">{{icon "circle-help" "text-accent"}}<span data-confirm-text></span></p>
+  <p id="confirm-text" class="flex items-center gap-3 font-medium">{{icon "circle-help" "size-6 text-accent"}}<span class="leading-snug" data-confirm-text></span></p>
   <div class="btn-pair mt-3">
     <button type="button" class="btn btn-secondary" data-confirm-no>Tidak</button>
     <button type="button" class="btn btn-primary" data-confirm-yes>Ya</button>

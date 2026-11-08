@@ -51,7 +51,7 @@
     {{if gt .WaitlistedCount 0}}<span class="badge badge-info">{{icon "hourglass" "size-3.5"}}{{.WaitlistedCount}} antre</span>{{end}}
   </div>
   <div class="meter" role="img" aria-label="Terisi {{.RegisteredCount}} dari {{.Capacity}} slot"><span style="width: {{pct .RegisteredCount .Capacity}}%"></span></div>
-  <a href="/sessions/{{.Slug}}" class="btn btn-secondary mt-auto">Lihat detail {{icon "arrow-right"}}</a>
+  <a href="/sessions/{{.Slug}}" class="btn btn-primary mt-auto">Lihat detail</a>
 </article>
 {{end}}
 

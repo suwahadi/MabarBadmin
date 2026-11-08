@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/suwahadi/mabarbadmin/internal/content"
 	"github.com/suwahadi/mabarbadmin/internal/database/sqlc"
 	"github.com/suwahadi/mabarbadmin/internal/domain"
 	"github.com/suwahadi/mabarbadmin/internal/settings"
@@ -267,6 +268,9 @@ func (s *Service) SavePage(ctx context.Context, a Actor, id int64, in PageInput)
 			if err != nil {
 				return notFound(err)
 			}
+			if content.IsDefaultPage(cur.Slug) && in.Slug != cur.Slug {
+				return userErr("Slug halaman bawaan tidak bisa diubah.")
+			}
 		}
 		coverID, ogID := cur.CoverMediaID, cur.OgMediaID
 		var dropIDs []*int64
@@ -328,6 +332,9 @@ func (s *Service) DeletePage(ctx context.Context, a Actor, id int64) error {
 		cur, err := q.GetPage(ctx, id)
 		if err != nil {
 			return notFound(err)
+		}
+		if content.IsDefaultPage(cur.Slug) {
+			return userErr("Halaman bawaan tidak bisa dihapus.")
 		}
 		if err := q.DeletePage(ctx, id); err != nil {
 			return err

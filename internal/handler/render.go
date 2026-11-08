@@ -186,14 +186,15 @@ func (a *App) funcs() template.FuncMap {
 			}
 			return ""
 		},
-		"inputDate":  func(t time.Time) string { return t.In(loc()).Format("2006-01-02") },
-		"phone":      locale.FormatPhone,
-		"maskPhone":  locale.MaskPhone,
-		"waLink":     waLink,
-		"waGreeting": waGreeting,
-		"status":     regStatusLabel,
-		"payStatus":  paymentStatusLabel,
-		"payTone":    paymentTone,
+		"inputDate":     func(t time.Time) string { return t.In(loc()).Format("2006-01-02") },
+		"phone":         locale.FormatPhone,
+		"maskPhone":     locale.MaskPhone,
+		"waLink":        waLink,
+		"waGreeting":    waGreeting,
+		"isDefaultPage": content.IsDefaultPage,
+		"status":        regStatusLabel,
+		"payStatus":     paymentStatusLabel,
+		"payTone":       paymentTone,
 		"sessStatus": func(s string) string {
 			return sessionStatusLabel[s]
 		},

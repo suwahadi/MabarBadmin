@@ -140,6 +140,29 @@ document.addEventListener("drop", (event) => {
   submitSwap(swap.dragging, chip);
 });
 
+// Inline slug validation on the static page form; the server applies the same rules on save.
+function checkSlug(input) {
+  const value = input.value.trim();
+  const reserved = (input.dataset.reserved || "").split(",");
+  let message = "";
+  if (value && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) {
+    message = "Slug hanya boleh huruf kecil, angka, dan tanda hubung (contoh: cara-bayar).";
+  } else if (reserved.includes(value)) {
+    message = `Slug "${value}" dipakai oleh sistem. Pilih slug lain.`;
+  }
+  input.setCustomValidity(message);
+  input.setAttribute("aria-invalid", message ? "true" : "false");
+  const error = document.getElementById(input.getAttribute("aria-describedby"));
+  if (error) {
+    error.textContent = message;
+    error.hidden = !message;
+  }
+}
+
+document.addEventListener("input", (event) => {
+  if (event.target.matches("[data-slug-check]")) checkSlug(event.target);
+});
+
 // Hero slider: the first slide is server-rendered as the LCP image; rotation starts only after
 // the page has loaded, stops when touched, and never runs for reduced-motion users.
 Alpine.data("slider", () => ({

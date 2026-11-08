@@ -280,7 +280,8 @@ func (a *App) adminPageForm(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	v.Data["P"] = p
-	v.Data["Reserved"] = strings.Join(domain.ReservedSlugs, ", ")
+	v.Data["Reserved"] = strings.Join(domain.ReservedSlugs, ",")
+	v.Data["IsDefault"] = p.ID > 0 && content.IsDefaultPage(p.Slug)
 	a.render(w, r, http.StatusOK, "admin/page_form", v)
 }
 

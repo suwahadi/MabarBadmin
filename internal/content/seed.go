@@ -26,6 +26,17 @@ var DefaultFAQ = [][2]string{
 	{"Apa itu kode unik?", "Tambahan Rp 1 sampai Rp 499 pada nominal bayar agar admin mudah mencocokkan transferanmu."},
 }
 
+// IsDefaultPage reports whether slug belongs to a built-in page. These pages back fixed links and
+// features (the FAQ accordion is tied to /faq), so they cannot be deleted or renamed.
+func IsDefaultPage(slug string) bool {
+	for _, p := range DefaultPages {
+		if p.Slug == slug {
+			return true
+		}
+	}
+	return false
+}
+
 // SeedPages inserts the built-in pages that do not exist yet; existing pages are never overwritten.
 func SeedPages(ctx context.Context, q *sqlc.Queries) error {
 	for i, p := range DefaultPages {

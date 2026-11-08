@@ -135,19 +135,41 @@ func TestPostWithoutCSRFIsRejected(t *testing.T) {
 func TestPageSlugRedirect(t *testing.T) {
 	app := newTestApp(t)
 	ctx := context.Background()
-	p, err := app.Q.GetPageBySlug(ctx, "about")
+	custom, err := app.Svc.SavePage(ctx, service.AdminActor(0), 0, service.PageInput{Slug: "cara-bayar", Title: "Cara Bayar", Published: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = app.Svc.SavePage(ctx, service.AdminActor(0), p.ID, service.PageInput{Slug: "tentang", Title: p.Title, Body: p.BodyMarkdown, Published: true})
+	_, err = app.Svc.SavePage(ctx, service.AdminActor(0), custom.ID, service.PageInput{Slug: "cara-membayar", Title: custom.Title, Published: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	rec := get(t, app.Handler(), "/about")
-	if rec.Code != http.StatusMovedPermanently || rec.Header().Get("Location") != "/tentang" {
+	rec := get(t, app.Handler(), "/cara-bayar")
+	if rec.Code != http.StatusMovedPermanently || rec.Header().Get("Location") != "/cara-membayar" {
 		t.Fatalf("got %d %s", rec.Code, rec.Header().Get("Location"))
 	}
 	if _, err := app.Svc.SavePage(ctx, service.AdminActor(0), 0, service.PageInput{Slug: "admin", Title: "X"}); err == nil {
 		t.Fatal("reserved slug accepted")
+	}
+}
+
+func TestDefaultPagesAreProtected(t *testing.T) {
+	app := newTestApp(t)
+	ctx := context.Background()
+	faq, err := app.Q.GetPageBySlug(ctx, "faq")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := app.Svc.DeletePage(ctx, service.AdminActor(0), faq.ID); err == nil {
+		t.Fatal("default page must not be deletable")
+	}
+	if _, err := app.Svc.SavePage(ctx, service.AdminActor(0), faq.ID, service.PageInput{Slug: "tanya-jawab", Title: faq.Title, Published: true}); err == nil {
+		t.Fatal("default page slug must not change")
+	}
+	custom, err := app.Svc.SavePage(ctx, service.AdminActor(0), 0, service.PageInput{Slug: "cara-bayar", Title: "Cara Bayar", Published: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := app.Svc.DeletePage(ctx, service.AdminActor(0), custom.ID); err != nil {
+		t.Fatalf("custom page should be deletable: %v", err)
 	}
 }

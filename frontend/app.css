@@ -120,9 +120,8 @@
   .btn-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.5rem; }
   .btn-row > *, .btn-row > form > .btn { @apply w-full min-w-0; }
   .btn-row .btn { @apply px-1.5 text-center leading-tight whitespace-normal; }
-  .confirm-toast { @apply fixed inset-x-0 top-auto mx-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-line bg-surface p-4 text-fg shadow-2xl;
-    bottom: calc(1rem + env(safe-area-inset-bottom)); margin-bottom: 0; }
-  .confirm-toast::backdrop { background: rgb(0 0 0 / 0.35); }
+  .confirm-toast { @apply m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-line bg-surface p-5 text-fg shadow-2xl; }
+  .confirm-toast::backdrop { background: rgb(0 0 0 / 0.45); }
   .lightbox { @apply m-auto max-h-[92dvh] max-w-[96vw] overflow-visible border-0 bg-transparent p-0; }
   .lightbox::backdrop { background: rgb(0 0 0 / 0.8); }
   .lightbox img { @apply block max-h-[88dvh] w-auto max-w-[96vw] rounded-xl bg-white object-contain; }
@@ -138,6 +137,8 @@
   .file-input { @apply py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-surface-2 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-fg; }
   .label { @apply mb-1 block text-sm font-medium; }
   .hint { @apply mt-1 text-xs text-muted; }
+  .field-error { @apply mt-1 text-xs font-medium text-bad; }
+  .input[aria-invalid="true"] { border-color: var(--bad); }
   .check { @apply inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm; }
   .check input { @apply size-5; accent-color: var(--accent); }
   .choice { @apply flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm font-medium has-[:checked]:border-accent has-[:checked]:bg-accent-soft; }
