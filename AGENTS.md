@@ -119,7 +119,7 @@ Integration test butuh PostgreSQL: `TEST_DATABASE_URL=postgres://... go test -p 
 - Gunakan identitas Git milik pemilik repository. Periksa `git config user.name` dan `git config user.email` sebelum commit. Jangan mengubah konfigurasi Git global.
 - Pesan commit singkat, deskriptif, berbahasa Inggris, misal `Add waitlist promotion after payment confirmation`.
 - Periksa `git diff --staged` sebelum setiap commit.
-- Pemilik repository memberi izin tetap: setelah setiap revisi kode yang sudah lolos lint dan test, langsung commit dan push ke `main` (tanpa anotasi AI). Tidak perlu menanyakan konfirmasi deploy ke VPS; pemilik selalu menjalankan ulang `deploy/install.sh` sendiri.
+- Pemilik repository memberi izin tetap: setelah setiap revisi kode yang sudah lolos lint dan test, langsung commit dan push ke `main` (tanpa anotasi AI). Tidak perlu menanyakan konfirmasi deploy ke VPS; pemilik selalu menjalankan ulang `deploy/install.sh` sendiri. Setelah setiap push, selalu tampilkan blok perintah deploy (unduh `install.sh` lalu `sudo bash install.sh`) agar pemilik bisa langsung menyalinnya ke SSH.
 - Jangan amend, rebase, force-push, menulis ulang history, membuat release, atau menyentuh branch terlindungi tanpa izin eksplisit.
 - Jangan pernah mengklaim commit atau push berhasil kecuali memang berhasil.
 
