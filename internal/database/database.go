@@ -5,6 +5,8 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -47,6 +49,7 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, direction string) error {
 	case "down":
 		return goose.DownContext(ctx, db, "migrations")
 	case "status":
+		goose.SetLogger(log.New(os.Stdout, "", 0))
 		return goose.StatusContext(ctx, db, "migrations")
 	default:
 		return fmt.Errorf("unknown migrate direction %q", direction)
