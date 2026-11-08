@@ -334,7 +334,13 @@ func (s *Service) rebalance(ctx context.Context, q *sqlc.Queries, sess sqlc.Sess
 		return err
 	}
 	var seats []domain.Seat
+	// Participants already checked in (attended or no-show) still occupy quota seats even though
+	// they no longer take part in allocation; without this the waiting list would overfill the session.
+	checkedIn := 0
 	for _, r := range regs {
+		if domain.HoldsSlot(r.Status) && !domain.IsActive(r.Status) {
+			checkedIn++
+		}
 		if !domain.IsActive(r.Status) {
 			continue
 		}
@@ -345,7 +351,7 @@ func (s *Service) rebalance(ctx context.Context, q *sqlc.Queries, sess sqlc.Sess
 		seats = append(seats, seat)
 	}
 	deadlinePassed := sess.PaymentDeadlineAt != nil && !s.Now().Before(*sess.PaymentDeadlineAt)
-	moves := domain.Allocate(int(sess.Capacity), seats, domain.AllocateOptions{DeadlinePassed: deadlinePassed, Hold: hold})
+	moves := domain.Allocate(max(int(sess.Capacity)-checkedIn, 0), seats, domain.AllocateOptions{DeadlinePassed: deadlinePassed, Hold: hold})
 	for _, m := range moves {
 		if err := q.UpdateRegistrationStatus(ctx, sqlc.UpdateRegistrationStatusParams{ID: m.ID, Status: m.To}); err != nil {
 			return err

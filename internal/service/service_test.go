@@ -635,3 +635,30 @@ func TestSwapRotationPlayers(t *testing.T) {
 		t.Fatal("the player swapped out waited, so they must play the next round")
 	}
 }
+
+func TestCheckedInParticipantsKeepTheirSeats(t *testing.T) {
+	s := newTestService(t)
+	ctx := context.Background()
+	sess := makeSession(t, s, 2, time.Hour)
+	a := join(t, s, sess.ID, 1)
+	join(t, s, sess.ID, 2)
+	c := join(t, s, sess.ID, 3)
+	if _, err := s.SetAttendance(ctx, admin(), a.ID, domain.StatusAttended); err != nil {
+		t.Fatal(err)
+	}
+	payWithProof(t, s, c.ID)
+	join(t, s, sess.ID, 4)
+	regs, _ := s.Q.ListSessionRegistrations(ctx, sess.ID)
+	holding := 0
+	for _, r := range regs {
+		if domain.HoldsSlot(r.Status) {
+			holding++
+		}
+	}
+	if holding != 2 {
+		t.Fatalf("quota is 2 but %d registrations hold a seat", holding)
+	}
+	if got := reg(t, s, c.ID); got.Status != domain.StatusRegistered {
+		t.Fatalf("paid waitlist should still swap with the unpaid registered seat, got %s", got.Status)
+	}
+}
