@@ -96,10 +96,13 @@
   {{end}}
 
   {{if $p.CanChange}}
-  <div class="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">
-    <details class="rounded-xl border border-line p-4">
-      <summary class="flex cursor-pointer items-center gap-2 font-semibold">{{icon "repeat"}} Oper slot</summary>
-      <p class="mt-2 text-sm text-muted">Slot dan status bayar pindah ke pengganti. Urusan uang di antara kalian.</p>
+  <div class="space-y-3 border-t border-line pt-5" data-panel-group>
+    <div class="btn-pair">
+      <button type="button" class="flex items-center justify-center gap-2 rounded-xl border border-line p-4 font-semibold" data-panel-target="panel-oper" aria-expanded="false" aria-controls="panel-oper">{{icon "repeat"}} Oper slot</button>
+      <button type="button" class="flex items-center justify-center gap-2 rounded-xl border border-line p-4 font-semibold text-bad" data-panel-target="panel-batal" aria-expanded="false" aria-controls="panel-batal">{{icon "ban"}} Batalkan</button>
+    </div>
+    <div id="panel-oper" class="rounded-xl border border-line p-4" hidden>
+      <p class="text-sm text-muted">Slot dan status bayar pindah ke pengganti. Urusan uang di antara kalian.</p>
       <form method="post" action="{{$p.Base}}/transfer" class="mt-3 grid gap-3" data-confirm="Oper slot ke orang ini? Tindakan ini tidak bisa dibatalkan.">
         {{template "csrf" $p.CSRF}}
         <div><label class="label" for="t-name">Nama pengganti</label><input id="t-name" class="input" name="name" required maxlength="60"></div>
@@ -107,17 +110,16 @@
         <div><label class="label" for="t-level">Level</label>{{template "level_select" dict "ID" "t-level" "Value" ""}}</div>
         <button class="btn btn-secondary">{{icon "repeat"}} Oper slot</button>
       </form>
-    </details>
-    <details class="rounded-xl border border-line p-4">
-      <summary class="flex cursor-pointer items-center gap-2 font-semibold text-bad">{{icon "ban"}} Batalkan</summary>
+    </div>
+    <div id="panel-batal" class="rounded-xl border border-line p-4" hidden>
       {{if eq $r.PaymentStatus "paid"}}
         {{if $p.WillRefund}}
-        <p class="mt-2 text-sm text-muted">Kamu berhak refund penuh {{rupiah $r.AmountDue}}. Isi rekening tujuan refund.</p>
+        <p class="text-sm text-muted">Kamu berhak refund penuh {{rupiah $r.AmountDue}}. Isi rekening tujuan refund.</p>
         {{else}}
-        <p class="mt-2 notice notice-bad text-sm">Batas refund sudah lewat ({{datetime $p.Session.RefundDeadlineAt}}). Jika batal, pembayaran hangus. Sebaiknya oper slot.</p>
+        <p class="notice notice-bad text-sm">Batas refund sudah lewat ({{datetime $p.Session.RefundDeadlineAt}}). Jika batal, pembayaran hangus. Sebaiknya oper slot.</p>
         {{end}}
       {{else}}
-      <p class="mt-2 text-sm text-muted">Slotmu akan diberikan ke waiting list teratas.</p>
+      <p class="text-sm text-muted">Slotmu akan diberikan ke waiting list teratas.</p>
       {{end}}
       <form method="post" action="{{$p.Base}}/cancel" class="mt-3 grid gap-3" data-confirm="Yakin membatalkan pendaftaran?">
         {{template "csrf" $p.CSRF}}
@@ -128,7 +130,7 @@
         {{end}}
         <button class="btn btn-danger">{{icon "ban"}} Batalkan pendaftaran</button>
       </form>
-    </details>
+    </div>
   </div>
   {{end}}
 </section>

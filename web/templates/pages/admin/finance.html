@@ -2,11 +2,11 @@
 {{$r := .Data.Report}}
 <div class="flex flex-wrap items-end justify-between gap-3 pb-5">
   <h1 class="text-2xl font-bold">Keuangan · {{month $r.Month}}</h1>
-  <div class="flex flex-wrap gap-2">
-    <a class="btn btn-ghost" href="/admin/finance?month={{.Data.Prev}}" aria-label="Bulan sebelumnya">{{icon "chevron-left"}}</a>
-    <form method="get" action="/admin/finance"><input class="input" type="month" name="month" value="{{.Data.Month}}" aria-label="Pilih bulan" data-autosubmit></form>
-    <a class="btn btn-ghost" href="/admin/finance?month={{.Data.Next}}" aria-label="Bulan berikutnya">{{icon "chevron-right"}}</a>
-    <a class="btn btn-secondary" href="/admin/finance/export.csv?month={{.Data.Month}}">{{icon "download"}} CSV</a>
+  <div class="grid w-full grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-1.5 sm:w-auto">
+    <a class="icon-btn border border-line bg-surface" href="/admin/finance?month={{.Data.Prev}}" aria-label="Bulan sebelumnya">{{icon "chevron-left"}}</a>
+    <form method="get" action="/admin/finance" class="min-w-0"><input class="input min-w-0 px-2 text-sm" type="month" name="month" value="{{.Data.Month}}" aria-label="Pilih bulan" data-autosubmit></form>
+    <a class="icon-btn border border-line bg-surface" href="/admin/finance?month={{.Data.Next}}" aria-label="Bulan berikutnya">{{icon "chevron-right"}}</a>
+    <a class="btn btn-secondary gap-1 px-3" href="/admin/finance/export.csv?month={{.Data.Month}}" aria-label="Unduh CSV">{{icon "download" "hidden min-[400px]:inline-block"}} CSV</a>
   </div>
 </div>
 <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">

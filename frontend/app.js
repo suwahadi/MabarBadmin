@@ -33,15 +33,29 @@ document.addEventListener("click", async (event) => {
   if (button) {
     await copyText(button.dataset.copyText);
     const label = button.querySelector("[data-copy-label]");
-    const original = label.textContent;
+    const original = label ? label.textContent : "";
     button.querySelector("[data-copy-icon]").hidden = true;
     button.querySelector("[data-copy-done]").hidden = false;
-    label.textContent = "Tersalin!";
+    if (label) label.textContent = "Tersalin!";
     setTimeout(() => {
       button.querySelector("[data-copy-icon]").hidden = false;
       button.querySelector("[data-copy-done]").hidden = true;
-      label.textContent = original;
+      if (label) label.textContent = original;
     }, 2000);
+    return;
+  }
+  const toggle = event.target.closest("[data-panel-target]");
+  if (toggle) {
+    const group = toggle.closest("[data-panel-group]");
+    const target = document.getElementById(toggle.dataset.panelTarget);
+    const opening = target.hidden;
+    group.querySelectorAll("[data-panel-target]").forEach((btn) => {
+      const panel = document.getElementById(btn.dataset.panelTarget);
+      const show = btn === toggle && opening;
+      panel.hidden = !show;
+      btn.setAttribute("aria-expanded", String(show));
+      btn.classList.toggle("bg-surface-2", show);
+    });
     return;
   }
   const dismiss = event.target.closest("[data-dismiss-announcement]");

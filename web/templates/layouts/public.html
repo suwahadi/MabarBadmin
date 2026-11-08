@@ -61,10 +61,10 @@
 <footer class="border-t border-line bg-surface">
   <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-3">
     <div class="space-y-3">
-      <p class="flex items-center gap-2 text-lg font-bold">
+      <a href="/" class="flex w-fit items-center gap-2 text-lg font-bold hover:opacity-80" aria-label="{{.Site.Name}} beranda">
         {{if .Site.LogoLight}}<img src="{{.Site.LogoLight.Src}}" alt="" width="{{.Site.LogoLight.Width}}" height="{{.Site.LogoLight.Height}}" class="h-8 w-auto" loading="lazy" decoding="async">{{else}}<span class="grid size-8 place-items-center rounded-lg bg-accent text-accent-fg">{{icon "shuttlecock" "size-4"}}</span>{{end}}
         {{.Site.Name}}
-      </p>
+      </a>
       <p class="text-sm text-muted">{{.Site.Tagline}}</p>
       {{with .Site.Social}}<ul class="flex flex-wrap gap-2" aria-label="Media sosial">
         {{range .}}<li><a href="{{.URL}}" class="icon-btn border border-line" rel="noopener" target="_blank" aria-label="{{.Name}}">{{icon .Icon}}</a></li>{{end}}
@@ -85,6 +85,6 @@
       </ul>
     </div>
   </div>
-  <p class="border-t border-line py-4 text-center text-xs text-muted">© {{(now).Year}} {{.Site.Name}}</p>
+  <p class="border-t border-line py-4 text-center text-xs text-muted">Copyright © {{(now).Year}} {{.Site.Name}}.</p>
 </footer>
 {{end}}
