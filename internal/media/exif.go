@@ -68,22 +68,28 @@ func tiffOrientation(t []byte) int {
 	return 1
 }
 
-func applyOrientation(src image.Image, o int) image.Image {
-	if o <= 1 || o > 8 {
-		return src
-	}
+func swapsAxes(o int) bool { return o >= 5 && o <= 8 }
+
+// applyOrientation rotates or mirrors per the EXIF orientation tag by copying RGBA pixels directly.
+func applyOrientation(src image.Image, o int) *image.RGBA {
 	b := src.Bounds()
+	rgba, ok := src.(*image.RGBA)
+	if !ok || b.Min != (image.Point{}) {
+		rgba = image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+		draw.Draw(rgba, rgba.Bounds(), src, b.Min, draw.Src)
+	}
+	if o <= 1 || o > 8 {
+		return rgba
+	}
 	w, h := b.Dx(), b.Dy()
-	swap := o >= 5
 	dw, dh := w, h
-	if swap {
+	if swapsAxes(o) {
 		dw, dh = h, w
 	}
-	rgba := image.NewRGBA(image.Rect(0, 0, w, h))
-	draw.Draw(rgba, rgba.Bounds(), src, b.Min, draw.Src)
 	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
-	for y := 0; y < h; y++ {
-		for x := 0; x < w; x++ {
+	for y := range h {
+		row := rgba.Pix[y*rgba.Stride:]
+		for x := range w {
 			var dx, dy int
 			switch o {
 			case 2:
@@ -101,7 +107,7 @@ func applyOrientation(src image.Image, o int) image.Image {
 			case 8:
 				dx, dy = y, w-1-x
 			}
-			dst.Set(dx, dy, rgba.At(x, y))
+			copy(dst.Pix[dy*dst.Stride+4*dx:dy*dst.Stride+4*dx+4], row[4*x:4*x+4])
 		}
 	}
 	return dst

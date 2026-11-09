@@ -5,6 +5,8 @@ After=network-online.target postgresql.service
 [Service]
 User=mabar
 EnvironmentFile=/etc/mabar/env
+# Soft heap cap; the app returns memory after each image upload, this keeps bursts in check on small VPS.
+Environment=GOMEMLIMIT=320MiB
 ExecStart=/opt/mabar/current/mabar serve
 Restart=on-failure
 NoNewPrivileges=true

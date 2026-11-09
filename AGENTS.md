@@ -80,6 +80,7 @@ Integration test butuh PostgreSQL: `TEST_DATABASE_URL=postgres://... go test -p 
 - Alpine memakai build CSP. Di build ini `this` pada method yang dipanggil lewat `@click` tidak selalu reaktif dan ekspresi seperti `!flag` tidak didukung. Komponen Alpine hanya untuk state sederhana (`toggle`, `slider`); interaksi yang cukup mengubah DOM (salin teks, tutup pengumuman, konfirmasi form lewat `data-confirm`) memakai listener biasa di `frontend/app.js`.
 - Jangan ada skrip atau handler inline (`onclick`, `onchange`) di template; CSP memblokirnya. Gunakan atribut `data-*` dan listener di `app.js`.
 - Atribut `imagesrcset` di-escape `html/template` sebagai satu URL, jadi tag preload LCP dirakit di Go (`preloadTags`).
+- Pemrosesan gambar dijaga hemat RAM (target VPS 1 GB): unggahan diproses bergiliran (satu per waktu), resize memakai bilinear ke kelipatan 2 lalu filter kotak 2x2 (bukan Catmull-Rom yang butuh buffer float64 besar), rotasi EXIF diterapkan setelah resize, memori dikembalikan ke OS setiap selesai (`debug.FreeOSMemory`), gambar di atas 40 megapiksel ditolak, dan unit systemd memasang `GOMEMLIMIT=320MiB`. Encoder WebP (libwebp via WebAssembly) tetap butuh sekitar 110-170 MB per varian 1280-1600 px; jangan encode varian secara paralel.
 
 ## Aturan arsitektur
 

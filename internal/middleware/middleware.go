@@ -144,6 +144,11 @@ func (c CSRF) Handler(next http.Handler) http.Handler {
 		switch r.Method {
 		case http.MethodGet, http.MethodHead, http.MethodOptions:
 		default:
+			// Parse uploads with a 1 MB memory budget so larger files spill to a temp file instead
+			// of the default 32 MB held in RAM per request.
+			if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+				_ = r.ParseMultipartForm(1 << 20)
+			}
 			got := r.Header.Get("X-CSRF-Token")
 			if got == "" {
 				got = r.FormValue("csrf_token")
