@@ -209,6 +209,7 @@ func (a *App) funcs() template.FuncMap {
 		"int":    func(v any) int { return toInt(v) },
 		"pct":    func(part, total any) int { return percent(toInt(part), toInt(total)) },
 		"seq":    seq,
+		"int64":  func(v any) int64 { return int64(toInt(v)) },
 		"list":   func(v ...string) []string { return v },
 		"clockText": func(t pgtype.Time) string {
 			m := t.Microseconds / 60e6

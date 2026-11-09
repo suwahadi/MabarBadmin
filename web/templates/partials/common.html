@@ -58,7 +58,7 @@
 {{end}}
 
 {{define "payment_info"}}
-<div class="grid gap-4 {{if .Site.QRIS}}sm:grid-cols-2{{end}}">
+<div class="grid gap-4 {{if and .Site.QRIS (not .Stack)}}sm:grid-cols-2{{end}}">
   {{with .Site.QRIS}}
   <div class="rounded-xl border border-line p-4 text-center">
     <p class="mb-2 flex items-center justify-center gap-2 font-semibold">{{icon "qr-code"}} QRIS</p>
@@ -67,11 +67,11 @@
   {{end}}
   {{if .Site.BankAccount}}
   <div class="rounded-xl border border-line p-4">
-    <p class="mb-2 flex items-center gap-2 font-semibold">{{icon "landmark"}} Transfer bank</p>
-    <dl class="space-y-1 text-sm">
-      <div class="flex justify-between gap-2"><dt class="text-muted">Bank</dt><dd class="font-medium">{{.Site.BankName}}</dd></div>
-      <div class="flex items-center justify-between gap-2"><dt class="text-muted">No rekening</dt><dd class="flex items-center gap-1 font-mono font-semibold">{{.Site.BankAccount}}{{template "copy_icon" dict "Text" .Site.BankAccount "Label" "Salin nomor rekening"}}</dd></div>
-      <div class="flex justify-between gap-2"><dt class="text-muted">Atas nama</dt><dd class="font-medium">{{.Site.BankHolder}}</dd></div>
+    <p class="mb-3 flex items-center gap-2 font-semibold">{{icon "landmark"}} Transfer bank</p>
+    <dl class="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm">
+      <dt class="text-muted">Bank</dt><dd class="font-medium">{{.Site.BankName}}</dd>
+      <dt class="text-muted">No rekening</dt><dd class="flex items-center gap-1 font-mono font-semibold">{{.Site.BankAccount}}{{template "copy_icon" dict "Text" .Site.BankAccount "Label" "Salin nomor rekening"}}</dd>
+      <dt class="text-muted">Atas nama</dt><dd class="font-medium">{{.Site.BankHolder}}</dd>
     </dl>
   </div>
   {{end}}

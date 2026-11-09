@@ -252,6 +252,14 @@
   .swap-chip.is-dragging { opacity: 0.45; }
   [data-swapping] .swap-chip { pointer-events: none; opacity: 0.7; }
 
+  .pay-table { @apply w-full text-sm tabular-nums; }
+  .pay-table th { @apply py-1.5 pr-3 text-left font-normal text-muted; }
+  .pay-table td { @apply py-1.5 text-right font-medium; }
+  .pay-table tfoot th, .pay-table tfoot td { @apply border-t border-line pt-2.5 text-base font-bold text-fg; }
+  .pay-table tfoot td { @apply text-accent; }
+  .paid-ribbon { @apply pointer-events-none absolute top-5 -right-10 w-40 rotate-45 py-1 text-center text-xs font-bold tracking-widest uppercase shadow-md;
+    background: var(--accent); color: var(--accent-fg); }
+
   .court-card { @apply space-y-2 p-5 text-center; }
   .court-label { @apply flex items-center justify-center gap-2 text-sm font-bold text-accent uppercase tracking-wide; }
   .team { @apply grid gap-1 text-xl font-bold sm:text-2xl; }

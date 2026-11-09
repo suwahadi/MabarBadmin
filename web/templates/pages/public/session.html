@@ -73,10 +73,26 @@
       </section>
       {{end}}
       {{if eq $s.Status "published"}}
-      <section class="card space-y-3 p-5">
-        <h2 class="section-title">{{icon "wallet"}} Info pembayaran</h2>
-        <p class="text-sm text-muted">Daftar dulu untuk mendapat nominal bayar{{if $s.UniqueCodeEnabled}} dengan kode unik{{end}}. Batas refund {{datetime $s.RefundDeadlineAt}}.</p>
-        {{template "payment_info" $}}
+      {{$reg := ""}}{{with .Data.Panel}}{{$reg = .Reg}}{{end}}
+      {{$paid := false}}{{with $reg}}{{if or (eq .PaymentStatus "paid") (eq .PaymentStatus "refunded") (eq .PaymentStatus "refund_pending")}}{{$paid = true}}{{end}}{{end}}
+      <section class="card relative space-y-4 overflow-hidden p-5" aria-labelledby="bayar-title">
+        {{if $paid}}<span class="paid-ribbon" aria-hidden="true">Lunas</span>{{end}}
+        <h2 id="bayar-title" class="section-title">{{icon "wallet"}} Info pembayaran{{if $paid}}<span class="sr-only"> (sudah lunas)</span>{{end}}</h2>
+        <table class="pay-table">
+          <tbody>
+            <tr><th scope="row">Harga sesi</th><td>{{rupiah $s.Price}}</td></tr>
+            <tr><th scope="row">Kode unik</th><td>{{if not $s.UniqueCodeEnabled}}–{{else}}{{with $reg}}{{rupiah (int64 .UniqueCode)}}{{else}}<span class="text-muted">Rp 1–499, saat daftar</span>{{end}}{{end}}</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><th scope="row">Total bayar</th><td>{{with $reg}}{{rupiah .AmountDue}}{{else}}{{rupiah $s.Price}}{{if $s.UniqueCodeEnabled}} + kode unik{{end}}{{end}}</td></tr>
+          </tfoot>
+        </table>
+        {{if $paid}}
+        <p class="notice notice-ok">{{icon "badge-check"}}<span>Pembayaranmu sudah dikonfirmasi.</span></p>
+        {{else}}
+        {{template "payment_info" dict "Site" $.Site "Stack" true}}
+        <p class="text-xs text-muted">Batas refund {{datetime $s.RefundDeadlineAt}}.</p>
+        {{end}}
       </section>
       {{end}}
     </aside>

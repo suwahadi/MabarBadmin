@@ -37,7 +37,7 @@
   <div class="space-y-4">
     <h3 class="flex items-center gap-2 font-semibold">{{icon "wallet"}} Cara bayar</h3>
     <p class="text-sm text-muted">Transfer tepat <strong class="text-fg">{{rupiah $r.AmountDue}}</strong> agar admin mudah mencocokkan, lalu unggah bukti di bawah.{{if $p.Session.PaymentDeadlineAt}} Batas bayar {{datetime (derefT $p.Session.PaymentDeadlineAt)}}.{{else}} Pembayaran diterima sampai sesi dimulai; yang lunas lebih dulu diprioritaskan saat kuota penuh.{{end}}</p>
-    {{template "payment_info" $p}}
+    {{template "payment_info" dict "Site" $p.Site "Stack" false}}
     {{if eq $r.PaymentStatus "rejected"}}{{with index $p.Proofs 0}}<div class="notice notice-bad">{{icon "triangle-alert"}}<p>Bukti sebelumnya ditolak: {{.ReviewNote}}. Silakan unggah ulang.</p></div>{{end}}{{end}}
     <form method="post" action="{{$p.Base}}/payment-proofs" enctype="multipart/form-data" class="grid gap-3 rounded-xl border border-dashed border-line p-4">
       {{template "csrf" $p.CSRF}}
