@@ -3,7 +3,7 @@
 {{template "page_head" dict "Title" (or (and $t.ID $t.Name) "Template baru") "Back" "/admin/templates"}}
 <form id="template-form" method="post" action="/admin/templates{{if $t.ID}}/{{$t.ID}}{{end}}" class="card grid gap-4 p-5 sm:grid-cols-2">
   {{template "csrf" .CSRF}}
-  <div class="sm:col-span-2"><label class="label" for="name">Nama template</label><input id="name" class="input" name="name" value="{{$t.Name}}" placeholder="Senin malam GBA" required></div>
+  <div class="sm:col-span-2"><label class="label" for="name">Nama template</label><input id="name" class="input" name="name" value="{{$t.Name}}" required></div>
   <div><label class="label" for="venue">Venue</label><select id="venue" class="input" name="venue_id" required>{{range .Data.Venues}}<option value="{{.ID}}" {{if eq .ID $t.VenueID}}selected{{end}}>{{.Name}}</option>{{end}}</select>{{if not .Data.Venues}}<p class="hint">Buat <a class="link" href="/admin/venues">venue</a> dulu.</p>{{end}}</div>
   <div><label class="label" for="weekday">Hari</label><select id="weekday" class="input" name="weekday">{{range .Data.Weekdays}}<option value="{{.}}" {{if eq . $t.Weekday}}selected{{end}}>{{weekday .}}</option>{{end}}</select></div>
   <div><label class="label" for="st">Jam mulai</label><input id="st" class="input" type="time" name="start_time" value="{{clockText $t.StartTime}}" required></div>
