@@ -265,6 +265,11 @@
   .team { @apply grid gap-1 text-xl font-bold sm:text-2xl; }
   .vs { @apply text-xs font-bold text-muted; }
 
+  .disclosure > summary { @apply flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border border-line bg-surface px-4 font-semibold hover:bg-surface-2; }
+  .card.disclosure > summary { @apply border-0; }
+  .disclosure[open] > summary { @apply mb-3; }
+  .disclosure[open] .disclosure-chevron { transform: rotate(180deg); }
+
   .faq summary { @apply flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4 font-semibold; }
   .faq[open] summary .icon { transform: rotate(180deg); }
 

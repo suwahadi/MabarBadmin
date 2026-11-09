@@ -10,7 +10,7 @@ var (
 	ErrSessionNotOpen     = errors.New("sesi tidak menerima pendaftaran")
 	ErrSessionStarted     = errors.New("sesi sudah dimulai")
 	ErrNotActive          = errors.New("pendaftaran ini sudah tidak aktif")
-	ErrUniqueCodesUsed    = errors.New("kode unik untuk sesi ini sudah habis")
+	ErrUniqueCodesUsed    = errors.New("angka unik untuk sesi ini sudah habis")
 	ErrAlreadyRegistered  = errors.New("nomor WA ini sudah terdaftar di sesi ini")
 	ErrPaymentNotAccepted = errors.New("pembayaran untuk pendaftaran ini tidak bisa diproses")
 )

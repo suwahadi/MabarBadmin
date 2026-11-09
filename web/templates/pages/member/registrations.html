@@ -8,12 +8,14 @@
 {{if .Regs}}
 <ul class="divide-y divide-line">
   {{range $r := .Regs}}
-  <li class="flex flex-wrap items-center gap-3 py-3">
+  <li>
+    <a href="/sessions/{{$r.SessionSlug}}#tiket" class="-mx-2 flex flex-wrap items-center gap-3 rounded-lg px-2 py-3 hover:bg-surface-2">
     <div class="min-w-0 flex-1">
-      <a href="/sessions/{{$r.SessionSlug}}#tiket" class="font-medium hover:underline">{{$r.SessionTitle}}</a>
+      <span class="block font-medium">{{$r.SessionTitle}}</span>
       <p class="text-sm text-muted">{{date $r.SessionStartsAt}} · {{$r.VenueName}} · {{rupiah $r.AmountDue}}</p>
     </div>
     <div class="flex flex-wrap gap-2">{{template "status_badge" $r.Status}}{{template "pay_badge" $r.PaymentStatus}}</div>
+    </a>
   </li>
   {{end}}
 </ul>

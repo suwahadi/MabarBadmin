@@ -23,7 +23,7 @@ var DefaultFAQ = [][2]string{
 	{"Bagaimana cara ikut mabar?", "Buka link sesi dari grup WA, klik **Ikut Mabar**, lalu bayar dan unggah bukti bayar."},
 	{"Kapan batas bayar?", "Pembayaran diterima sampai sesi dimulai. Jika kuota penuh, peserta waiting list yang sudah lunas otomatis menggantikan peserta yang belum lunas."},
 	{"Bagaimana jika saya batal?", "Batal sebelum batas refund (H-1 pukul 00.00) mendapat refund penuh. Setelahnya pembayaran hangus, tapi kamu bisa **oper slot** ke teman."},
-	{"Apa itu kode unik?", "Tambahan Rp 1 sampai Rp 499 pada nominal bayar agar admin mudah mencocokkan transferanmu."},
+	{"Apa itu angka unik?", "Tambahan Rp 1 sampai Rp 499 pada nominal bayar agar admin mudah mencocokkan transferanmu."},
 }
 
 // IsDefaultPage reports whether slug belongs to a built-in page. These pages back fixed links and

@@ -30,7 +30,7 @@
     <div><dt class="text-muted">Sesi</dt><dd class="font-medium"><a class="hover:underline" href="/sessions/{{$p.Session.Slug}}">{{$p.Session.Title}}</a></dd></div>
     <div><dt class="text-muted">Waktu</dt><dd class="font-medium">{{date $p.Session.StartsAt}}, {{timerange $p.Session.StartsAt $p.Session.EndsAt}}</dd></div>
     <div><dt class="text-muted">Venue</dt><dd class="font-medium">{{$p.Venue.Name}}</dd></div>
-    <div><dt class="text-muted">Nominal bayar</dt><dd class="text-lg font-bold text-accent">{{rupiah $r.AmountDue}}{{if gt $r.UniqueCode 0}} <span class="text-xs font-normal text-muted">(termasuk kode unik {{$r.UniqueCode}})</span>{{end}}</dd></div>
+    <div><dt class="text-muted">Nominal bayar</dt><dd class="text-lg font-bold text-accent">{{rupiah $r.AmountDue}}{{if gt $r.UniqueCode 0}} <span class="text-xs font-normal text-muted">(termasuk angka unik {{$r.UniqueCode}})</span>{{end}}</dd></div>
   </dl>
 
   {{if $p.CanUpload}}

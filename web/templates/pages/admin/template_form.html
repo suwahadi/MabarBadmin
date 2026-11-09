@@ -15,7 +15,7 @@
   <div><label class="label" for="ll">Level</label><input id="ll" class="input" name="level_label" value="{{$t.LevelLabel}}" placeholder="Semua level"></div>
   <div class="grid content-end gap-2">
     <label class="check"><input type="checkbox" name="shuttlecock_included" {{if $t.ShuttlecockIncluded}}checked{{end}}> Shuttlecock termasuk HTM</label>
-    <label class="check"><input type="checkbox" name="unique_code_enabled" {{if $t.UniqueCodeEnabled}}checked{{end}}> Pakai kode unik</label>
+    <label class="check"><input type="checkbox" name="unique_code_enabled" {{if $t.UniqueCodeEnabled}}checked{{end}}> Pakai angka unik</label>
   </div>
   <div class="sm:col-span-2"><label class="label" for="notes">Catatan aturan</label><textarea id="notes" class="input" name="notes" rows="4">{{$t.Notes}}</textarea></div>
   {{if not $t.ID}}<div class="sm:col-span-2"><button class="btn btn-primary w-full sm:w-auto">Simpan template</button></div>{{end}}

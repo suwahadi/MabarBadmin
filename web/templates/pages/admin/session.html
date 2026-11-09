@@ -43,14 +43,14 @@
   {{template "admin_reg_table" dict "Regs" . "CSRF" $.CSRF "Kind" "waitlist" "Back" (printf "/admin/sessions/%d" $s.ID)}}
   {{end}}
   {{with $p.Others}}
-  <details class="mt-6"><summary class="cursor-pointer font-semibold">Batal dan dioper ({{len .}})</summary>
+  <details class="disclosure mt-6"><summary>{{icon "ban"}}<span class="flex-1">Batal dan dioper ({{len .}})</span>{{icon "chevron-down" "disclosure-chevron"}}</summary>
     <ul class="mt-2 divide-y divide-line text-sm">{{range .}}<li class="flex flex-wrap items-center gap-2 py-2"><span class="flex-1">{{.DisplayName}} · {{phone .Phone}}</span>{{template "status_badge" .Status}}{{template "pay_badge" .PaymentStatus}}</li>{{end}}</ul>
   </details>
   {{end}}
 
   {{if or (eq $s.Status "draft") (eq $s.Status "published")}}
-  <details class="mt-6 rounded-xl border border-line p-4">
-    <summary class="flex cursor-pointer items-center gap-2 font-semibold">{{icon "user-plus"}} Tambah peserta manual</summary>
+  <details class="disclosure mt-6">
+    <summary>{{icon "user-plus"}}<span class="flex-1">Tambah peserta manual</span>{{icon "chevron-down" "disclosure-chevron"}}</summary>
     <form method="post" action="/admin/sessions/{{$s.ID}}/registrations" class="mt-3 grid gap-3 sm:grid-cols-4 sm:items-end" data-confirm="Tambahkan peserta ini ke sesi?">
       {{template "csrf" .CSRF}}
       <div><label class="label" for="m-name">Nama</label><input id="m-name" class="input" name="name" required></div>
@@ -87,9 +87,9 @@
   </section>
 </div>
 
-<details class="card mt-6 p-5">
-  <summary class="cursor-pointer font-semibold">Log aktivitas</summary>
-  <ul class="mt-3 divide-y divide-line text-sm">{{range .Data.Activity}}<li class="flex flex-wrap gap-2 py-2"><span class="text-muted">{{shortdate .CreatedAt}} {{clock .CreatedAt}}</span><span class="font-medium">{{.ActorType}}</span><span>{{.EntityType}} #{{.EntityID}}</span><span class="font-mono text-xs">{{.Action}}</span></li>{{else}}<li class="py-2 text-muted">Belum ada aktivitas.</li>{{end}}</ul>
+<details class="card disclosure mt-6 p-3">
+  <summary>{{icon "file-text"}}<span class="flex-1">Log aktivitas</span>{{icon "chevron-down" "disclosure-chevron"}}</summary>
+  <ul class="mt-2 divide-y divide-line px-2 text-sm">{{range .Data.Activity}}<li class="flex flex-wrap gap-2 py-2"><span class="text-muted">{{shortdate .CreatedAt}} {{clock .CreatedAt}}</span><span class="font-medium">{{.ActorType}}</span><span>{{.EntityType}} #{{.EntityID}}</span><span class="font-mono text-xs">{{.Action}}</span></li>{{else}}<li class="py-2 text-muted">Belum ada aktivitas.</li>{{end}}</ul>
 </details>
 {{end}}
 

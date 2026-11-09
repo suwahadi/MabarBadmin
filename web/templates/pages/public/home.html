@@ -15,7 +15,7 @@
         <div class="mx-auto max-w-6xl px-4">
           {{if eq $i 0}}<h1 class="hero-title">{{$s.Title}}</h1>{{else}}<p class="hero-title">{{$s.Title}}</p>{{end}}
           {{with $s.Subtitle}}<p class="mt-2 max-w-xl text-base text-white/90 sm:text-lg">{{.}}</p>{{end}}
-          {{if and $s.CtaLabel $s.CtaUrl}}<a href="{{$s.CtaUrl}}" class="btn btn-primary mt-4">{{$s.CtaLabel}} {{icon "arrow-right"}}</a>{{end}}
+          {{if and $s.CtaLabel $s.CtaUrl}}<a href="{{$s.CtaUrl}}" class="btn btn-primary mt-4">{{$s.CtaLabel}}</a>{{end}}
         </div>
       </div>
       {{end}}

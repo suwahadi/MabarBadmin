@@ -14,7 +14,7 @@
     {{with .Site.MapsURL}}<a href="{{.}}" class="btn btn-secondary sm:col-span-2" target="_blank" rel="noopener">{{icon "map-pin"}} Buka peta</a>{{end}}
   </div>
   {{end}}
-  <div class="prose-content">{{md $pg.BodyMarkdown}}</div>
+  {{if $pg.BodyMarkdown}}<div class="card prose-content p-5 sm:p-6">{{md $pg.BodyMarkdown}}</div>{{end}}
   {{with .Data.FAQ}}
   <div class="mt-8 space-y-3">
     {{range .}}<details class="faq card">

@@ -135,7 +135,7 @@ var Registry = []Def{
 	{Key: BankAccountNumber, Group: "payment", Label: "No rekening", Kind: KindString},
 	{Key: BankAccountName, Group: "payment", Label: "Atas nama", Kind: KindString},
 	{Key: QRISMediaID, Group: "payment", Label: "Gambar QRIS statis", Kind: KindMedia, Preset: "qris"},
-	{Key: UniqueCodeDefault, Group: "payment", Label: "Kode unik aktif secara default", Kind: KindBool, Default: true},
+	{Key: UniqueCodeDefault, Group: "payment", Label: "Angka unik aktif secara default", Kind: KindBool, Default: true},
 
 	{Key: PaymentDeadlineHrs, Group: "session-rules", Label: "Batas bayar (jam sebelum mulai)", Kind: KindInt, Default: int64(0), Min: 0, Max: 720, Help: "0 = fleksibel sampai sesi dimulai."},
 	{Key: RefundDeadlineDays, Group: "session-rules", Label: "Batas refund (H-n pukul 00.00)", Kind: KindInt, Default: int64(1), Min: 0, Max: 30, Help: "1 = H-1 pukul 00.00."},

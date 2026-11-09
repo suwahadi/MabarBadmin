@@ -364,7 +364,7 @@ func (a *App) broadcastText(ctx context.Context, page SessionPage) string {
 		SessionURL: strings.TrimRight(site.SiteURL, "/") + "/sessions/" + sess.Slug,
 	}
 	if sess.UniqueCodeEnabled {
-		d.Price += " + kode unik"
+		d.Price += " + angka unik"
 	}
 	d.Shuttlecock = "Termasuk HTM"
 	if !sess.ShuttlecockIncluded {

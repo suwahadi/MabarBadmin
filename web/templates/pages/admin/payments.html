@@ -18,7 +18,7 @@
         <p class="shrink-0 text-right font-mono text-lg font-bold">{{rupiah .AmountDue}}</p>
       </div>
       <dl class="grid grid-cols-2 gap-x-3 gap-y-1">
-        <dt class="text-muted">Kode unik</dt><dd class="font-mono">{{if .UniqueCode}}{{.UniqueCode}}{{else}}–{{end}}</dd>
+        <dt class="text-muted">Angka unik</dt><dd class="font-mono">{{if .UniqueCode}}{{.UniqueCode}}{{else}}–{{end}}</dd>
         <dt class="text-muted">Metode</dt><dd>{{method .Method}}</dd>
         <dt class="text-muted">Diunggah</dt><dd>{{shortdate .UploadedAt}} {{clock .UploadedAt}}</dd>
         <dt class="text-muted">Peserta</dt><dd>{{status .RegistrationStatus}}</dd>
